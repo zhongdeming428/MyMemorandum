@@ -1,2 +1,2 @@
 # MyMemorandum
-This is a schedule.
+这是一个日程表仓库，我用它的issues功能来规划我的学习、工作和生活。它的仓库功能我也会用来存储我的一些练手项目。
