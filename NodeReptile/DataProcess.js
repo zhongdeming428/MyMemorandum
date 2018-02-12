@@ -69,6 +69,22 @@ function fetchAvg(jobName, jobLocation) {
     });
 }
 
+//处理数据结果的函数
+//对于一个数组的结果
+//返回一个处理好的数据对象
+function processData(arr){
+    var resObj = {};
+    for(code in variables.cityCode){
+        for(index in arr){
+            if(variables.cityCode[code] === arr[index].city){
+                resObj[`${code}_${arr[index].name}`] = arr[index];
+            }
+        }
+    }
+    return resObj;
+}
+
+//主函数
 function main() {
     var resArr = [];
     for (job in variables.jobs) {
@@ -77,8 +93,8 @@ function main() {
                 fetchAvg(jobName, jobLocation).then(obj => {
                     resArr.push(obj);
                     if(resArr.length === 189){
-                        console.log(resArr);
-                        fs.writeFileSync('./files/data.json', JSON.stringify(resArr));
+                        // console.log(processData(resArr));
+                        fs.writeFileSync('./files/data.json', JSON.stringify(processData(resArr)));
                     }
                 }, e => {
                     console.error(e);
