@@ -1,8 +1,6 @@
+//这个js文件用于测试underscore接口。
+
 const _ = require('./underscore.js');
 
-var obj = {};
-_.each([1,2,3], function(v, k, o){
-	this[k] = v;
-}, obj);
+_.without([1, 2, 1, 0, 3, 1, 4], 0, 1);
 
-console.log(obj);

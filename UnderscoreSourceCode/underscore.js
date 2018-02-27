@@ -114,10 +114,12 @@
       case 3: return function(value, index, collection) {
         return func.call(context, value, index, collection);
       };
+      //用于_.reduce函数中。
       case 4: return function(accumulator, value, index, collection) {
         return func.call(context, accumulator, value, index, collection);
       };
     }
+    //直接使用也可，但是call比apply更快，所以还是添加了switch中的内容。
     return function() {
       return func.apply(context, arguments);
     };
@@ -128,6 +130,7 @@
   // An internal function to generate callbacks that can be applied to each
   // element in a collection, returning the desired result — either `identity`,
   // an arbitrary callback, a property matcher, or a property accessor.
+  //这是一个回调生成器，在144行开始使用。
   var cb = function(value, context, argCount) {
     if (_.iteratee !== builtinIteratee) return _.iteratee(value, context);
     if (value == null) return _.identity;
@@ -139,13 +142,17 @@
   // External wrapper for our callback generator. Users may customize
   // `_.iteratee` if they want additional predicate/iteratee shorthand styles.
   // This abstraction hides the internal-only argCount argument.
+  //回调生成器的外部包装。
   _.iteratee = builtinIteratee = function(value, context) {
     return cb(value, context, Infinity);
   };
 
   // Similar to ES6's rest param (http://ariya.ofilabs.com/2013/03/es6-and-rest-parameter.html)
   // This accumulates the arguments passed into an array, after a given index.
+
+  //一个基础函数，后续多处有使用到，放到后面再看。——未解决
   var restArgs = function(func, startIndex) {
+    //function.length表示function定义时，形式参数的个数。
     startIndex = startIndex == null ? func.length - 1 : +startIndex;
     return function() {
       var length = Math.max(arguments.length - startIndex, 0),
@@ -169,9 +176,16 @@
   };
 
   // An internal function for creating a new object that inherits from another.
+  //用于创建继承指定原型的对象。
   var baseCreate = function(prototype) {
+    //如果传递的原型参数不是一个对象，那么返回一个空白对象，即不继承任何原型。
     if (!_.isObject(prototype)) return {};
+    //nativeCreate = Object.create
+    //Object.create(proto[, propertiesObject])，第一个参数是要继承的原型对象，第二个参数是要添加的新属性。
+    //如果支持Object.create函数，那么直接用该函数创建对象。
     if (nativeCreate) return nativeCreate(prototype);
+    //如果不支持Object.create方法，那么就手动创建。
+    //Ctor = function(){}，一个空白函数。
     Ctor.prototype = prototype;
     var result = new Ctor;
     Ctor.prototype = null;
@@ -179,11 +193,15 @@
   };
 
   var shallowProperty = function(key) {
+    //闭包
+    //该函数返回一个新的函数，用于获取指定对象的指定属性。
     return function(obj) {
       return obj == null ? void 0 : obj[key];
     };
   };
 
+  //path是一个数组，数组中的项依次是某个对象的属性的具体路径，该方法用于获取指定的深层次的属性值。
+  //比如如果deepGet(persons, ['person','name'])，则表示获取persons.person.name。
   var deepGet = function(obj, path) {
     var length = path.length;
     for (var i = 0; i < length; i++) {
@@ -199,6 +217,9 @@
   // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var getLength = shallowProperty('length');
+  //判断给定集合参数是否是类数组对象。
+  //类数组对象：具有length属性并且length长度位于0~4294967296之间的对象。
+  //参考冴羽大牛的博客：https://github.com/mqyqingfeng/Blog/issues/14
   var isArrayLike = function(collection) {
     var length = getLength(collection);
     return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
@@ -211,13 +232,16 @@
   // Handles raw objects in addition to array-likes. Treats all
   // sparse array-likes as if they were dense.
   _.each = _.forEach = function(obj, iteratee, context) {
+    //调用optimizeCb创建一个新的迭代函数，在context不为undefined时，在context上下文中调用传入的迭代器。
     iteratee = optimizeCb(iteratee, context);
     var i, length;
+    //如果是类数组对象，那么通过obj[index]来访问对应属性。
     if (isArrayLike(obj)) {
       for (i = 0, length = obj.length; i < length; i++) {
         iteratee(obj[i], i, obj);
       }
     } else {
+      //非类数组对象，通过obj[property]来访问对象属性。
       var keys = _.keys(obj);
       for (i = 0, length = keys.length; i < length; i++) {
         iteratee(obj[keys[i]], keys[i], obj);
@@ -228,7 +252,10 @@
 
   // Return the results of applying the iteratee to each element.
   _.map = _.collect = function(obj, iteratee, context) {
+    //创建新的迭代函数，在context上下文中调用迭代器。
     iteratee = cb(iteratee, context);
+    //非类数组对象就构造一个keys数组，通过该数组可以把非类数组对象映射为类数组对象。
+    //这里写的十分巧妙。
     var keys = !isArrayLike(obj) && _.keys(obj),
         length = (keys || obj).length,
         results = Array(length);
@@ -240,25 +267,35 @@
   };
 
   // Create a reducing function iterating left or right.
+  //该函数用于创建一个新的函数，新的函数可以把指定集合的值叠加起来。
+  //dir<0时从右往左叠加，dir>0时从左往右叠加。
+  //实际上dir还是每次迭代时索引的变化量，当dir=-1时，每次索引减小1，反之亦然。
   var createReduce = function(dir) {
     // Wrap code that reassigns argument variables in a separate function than
     // the one that accesses `arguments.length` to avoid a perf hit. (#1991)
+    //针对不同的dir，会定制不同的reducer函数。
+    //reducer函数用于叠加list中的所有元素。
     var reducer = function(obj, iteratee, memo, initial) {
       var keys = !isArrayLike(obj) && _.keys(obj),
           length = (keys || obj).length,
           index = dir > 0 ? 0 : length - 1;
+      //当_.reduce函数只接受到了两个参数，即未指定memo初值时，
+      //手动为memo指定初值。
       if (!initial) {
         memo = obj[keys ? keys[index] : index];
         index += dir;
       }
       for (; index >= 0 && index < length; index += dir) {
         var currentKey = keys ? keys[index] : index;
+        //循环迭代list中的每一个值，将每次迭代后迭代函数返回的值作为新的初值，以达到连接所有list元素的目的。
         memo = iteratee(memo, obj[currentKey], currentKey, obj);
       }
       return memo;
     };
 
+    //闭包，使得外部函数能够访问内部私有的reducer函数。
     return function(obj, iteratee, memo, context) {
+      //判断是否已经指定memo初值。
       var initial = arguments.length >= 3;
       return reducer(obj, optimizeCb(iteratee, context, 4), memo, initial);
     };
@@ -266,12 +303,26 @@
 
   // **Reduce** builds up a single result from a list of values, aka `inject`,
   // or `foldl`.
+  /*
+  _.reduce(list, iteratee, [memo], [context]) 
+  reduce方法把list中元素归结为一个单独的数值。
+  Memo是reduce函数的初始值，reduce的每一步都需要由iteratee返回。
+  这个迭代传递4个参数：memo, value 和 迭代的index（或者 key）和最后一个引用的整个 list。 
+  */
   _.reduce = _.foldl = _.inject = createReduce(1);
 
   // The right-associative version of reduce, also known as `foldr`.
+  /*
+  _.reduceRight(list, iteratee, memo, [context])
+  reducRight是从右侧开始组合的元素的reduce函数，
+  如果存在JavaScript 1.8版本的reduceRight，则用其代替。
+  Foldr在javascript中不像其它有懒计算的语言那么有用（注：lazy evaluation：一种求值策略，
+  只有当表达式的值真正需要时才对表达式进行计算）。
+  */
   _.reduceRight = _.foldr = createReduce(-1);
 
   // Return the first value which passes a truth test. Aliased as `detect`.
+  //在数组或者对象中查找使predicate返回true的匹配项。
   _.find = _.detect = function(obj, predicate, context) {
     var keyFinder = isArrayLike(obj) ? _.findIndex : _.findKey;
     var key = keyFinder(obj, predicate, context);
@@ -283,6 +334,7 @@
   _.filter = _.select = function(obj, predicate, context) {
     var results = [];
     predicate = cb(predicate, context);
+    //利用已经写好的_.each函数遍历集合，然后把迭代器换为要执行的predicate。
     _.each(obj, function(value, index, list) {
       if (predicate(value, index, list)) results.push(value);
     });
@@ -290,11 +342,15 @@
   };
 
   // Return all the elements for which a truth test fails.
+  //返回所有使predicate函数返回false的匹配项。
+  //利用已经写好的_.filter函数。
   _.reject = function(obj, predicate, context) {
+    //_.negate返回一个针对predicate取反的函数。
     return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
   // Determine whether all of the elements match a truth test.
+  //检测是否所有集合元素都可以满足predicate函数，使其返回值为true。
   // Aliased as `all`.
   _.every = _.all = function(obj, predicate, context) {
     predicate = cb(predicate, context);
@@ -302,12 +358,15 @@
         length = (keys || obj).length;
     for (var index = 0; index < length; index++) {
       var currentKey = keys ? keys[index] : index;
+      //一旦不满足就返回false，退出当前函数。
       if (!predicate(obj[currentKey], currentKey, obj)) return false;
     }
+    //全部通过检测，返回true。
     return true;
   };
 
   // Determine if at least one element in the object matches a truth test.
+  //检测是否有至少一个集合元素可以通过predicate检测。
   // Aliased as `any`.
   _.some = _.any = function(obj, predicate, context) {
     predicate = cb(predicate, context);
@@ -690,6 +749,7 @@
   };
 
   // Generator function to create the findIndex and findLastIndex functions.
+  //创建索引查找器，当dir>0时，从左往右查找，当dir>0时，反向查找。
   var createPredicateIndexFinder = function(dir) {
     return function(array, predicate, context) {
       predicate = cb(predicate, context);
@@ -698,12 +758,15 @@
       for (; index >= 0 && index < length; index += dir) {
         if (predicate(array[index], index, array)) return index;
       }
+      //如果遍历数组之后仍未找到匹配项，则返回-1。
       return -1;
     };
   };
 
   // Returns the first index on an array-like that passes a predicate test.
+  //正向查找。
   _.findIndex = createPredicateIndexFinder(1);
+  //逆向查找。
   _.findLastIndex = createPredicateIndexFinder(-1);
 
   // Use a comparator function to figure out the smallest index at which
@@ -954,6 +1017,7 @@
   };
 
   // Returns a negated version of the passed-in predicate.
+  //针对predicate函数，返回一个意义与其相反的函数。
   _.negate = function(predicate) {
     return function() {
       return !predicate.apply(this, arguments);
@@ -1027,12 +1091,20 @@
 
   // Retrieve the names of an object's own properties.
   // Delegates to **ECMAScript 5**'s native `Object.keys`.
+  //返回指定对象自身拥有的所有属性,不会返回原型链上的属性。
   _.keys = function(obj) {
+    //非对象返回一个空数组。
     if (!_.isObject(obj)) return [];
+    //nativeKeys = Object.keys
+    //Object.keys()方法会返回一个由一个给定对象的自身可枚举属性组成的数组，
+    //数组中属性名的排列顺序和使用 for...in 循环遍历该对象时返回的顺序一致
+    //(两者的主要区别是 一个 for-in 循环还会枚举其原型链上的属性)。
     if (nativeKeys) return nativeKeys(obj);
     var keys = [];
+    //使用if判断，剔除原型链上的属性。
     for (var key in obj) if (_.has(obj, key)) keys.push(key);
     // Ahem, IE < 9.
+    //IE9之下的版本存在bug，需要特殊处理。
     if (hasEnumBug) collectNonEnumProps(obj, keys);
     return keys;
   };
@@ -1131,6 +1203,7 @@
   _.extendOwn = _.assign = createAssigner(_.keys);
 
   // Returns the first key on an object that passes a predicate test.
+  //查找对象中的匹配项，返回属性名。
   _.findKey = function(obj, predicate, context) {
     predicate = cb(predicate, context);
     var keys = _.keys(obj), key;
@@ -1350,9 +1423,13 @@
   };
 
   // Is a given variable an object?
+  //判断传入的参数是否是一个非空对象。
   _.isObject = function(obj) {
     var type = typeof obj;
     return type === 'function' || type === 'object' && !!obj;
+    //!!双感叹号的作用等同于Boolean函数。
+    //之所以需要判断!!obj的值，是因为需要确保传入参数是非空对象。
+    //!!null===false
   };
 
   // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError, isMap, isWeakMap, isSet, isWeakSet.
