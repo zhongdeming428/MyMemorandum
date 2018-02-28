@@ -150,22 +150,30 @@
   // Similar to ES6's rest param (http://ariya.ofilabs.com/2013/03/es6-and-rest-parameter.html)
   // This accumulates the arguments passed into an array, after a given index.
 
-  //一个基础函数，后续多处有使用到，放到后面再看。——未解决
+  //restArgs用于把func的位于startIndex之后的参数归类为一个数组，
+  //然后把这个数组结合startIndex之前的参数传递给func调用。
   var restArgs = function(func, startIndex) {
     //function.length表示function定义时，形式参数的个数。
+    //注意此处是func.length，即传入的方法参数的形参个数而不是当前函数的参数个数，需要结合具体传入的参数来看。
     startIndex = startIndex == null ? func.length - 1 : +startIndex;
+    //一下函数才是实际上的_.invoke函数，此时startIndex = 2。
     return function() {
       var length = Math.max(arguments.length - startIndex, 0),
           rest = Array(length),
           index = 0;
+      //新建了一个rest数组，把位于startIndex索引之后的所有参数放入该数组。
       for (; index < length; index++) {
         rest[index] = arguments[index + startIndex];
       }
+      //将多余参数放入rest数组之后，直接用Function.prototype.call执行函数。
       switch (startIndex) {
         case 0: return func.call(this, rest);
         case 1: return func.call(this, arguments[0], rest);
         case 2: return func.call(this, arguments[0], arguments[1], rest);
       }
+      //如果startIndex > 2，那么使用apply传递数组作为参数的方式执行func。
+      //虽然调用方法发生了变化，但是还是会把rest数组放在传入的参数数组的最后。
+      //这样做其实与之前的方法无异（switch部分可以删除），但是call的效率高于apply。
       var args = Array(startIndex + 1);
       for (index = 0; index < startIndex; index++) {
         args[index] = arguments[index];
@@ -381,41 +389,73 @@
 
   // Determine if the array or object contains a given item (using `===`).
   // Aliased as `includes` and `include`.
+  /*
+  _.contains(list, value)
+  如果list包含指定的value则返回true（注：使用===检测）。
+  如果list 是数组，内部使用indexOf判断。
+  */
   _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+    //如果obj不是类数组对象（即为一个纯对象），那么将对象的值映射到一个新的数组中。
     if (!isArrayLike(obj)) obj = _.values(obj);
     if (typeof fromIndex != 'number' || guard) fromIndex = 0;
     return _.indexOf(obj, item, fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
+  /*
+  _.invoke(list, methodName, *arguments) 
+  在list的每个元素上执行methodName方法。 
+  任何传递给invoke的额外参数，invoke都会在调用methodName方法的时候传递给它。
+  根据API手册，methodName可以是一个具体的函数，也可以是指定list对象自身方法的路径的字符串，
+  比如_.invoke([[5, 1, 7], [3, 2, 1]], 'sort');methodName指定的就是Array.prototype.sort方法。
+  */
+  //结合restArgs函数的功能，我们可以认为是把下面函数args之后的所有参数归入一个数组(即为args)，
+  //然后在给下面的函数调用。
   _.invoke = restArgs(function(obj, path, args) {
     var contextPath, func;
+    //如果path是一个具体的方法，那么直接赋值给func。
     if (_.isFunction(path)) {
       func = path;
-    } else if (_.isArray(path)) {
-      contextPath = path.slice(0, -1);
+    } else if (_.isArray(path)) {  //如果path是一个数组对象。
+      //如果是字符串这里不会执行，因为字符串无法通过_.isArray检测。
+      //那么contextPath = undefined， path仍然等于传入的参数。
+      contextPath = path.slice(0, -1);  //-1表示从数组尾部开始算起。
       path = path[path.length - 1];
     }
+    //针对obj中的每一个元素，调用迭代器，最后返回的结果（如果method不存在则返回null）
+    //会存入数组，由map函数返回该数组。
     return _.map(obj, function(context) {
       var method = func;
       if (!method) {
+        //如果传入的path是数组对象，那么使用deepGet方法提取数组中路径对应的属性值，且重新赋值给context。
         if (contextPath && contextPath.length) {
           context = deepGet(context, contextPath);
         }
         if (context == null) return void 0;
+        //如果传入的path是一个字符串，那么直接通过context访问对应的方法。
         method = context[path];
       }
+      //将args数组中包含的参数传递给method调用。
       return method == null ? method : method.apply(context, args);
     });
   });
 
   // Convenience version of a common use case of `map`: fetching a property.
+  //循环遍历一边obj中的元素，然后针对每个元素，
+  //调用一个属性获取器来获取对应属性的值，最后返回一个数组集合。
+  //_.property(key)返回一个属性获取器。
+  /*
+  var stooges = [{name: 'moe', age: 40}, {name: 'larry', age: 50}, {name: 'curly', age: 60}];
+  _.pluck(stooges, 'name');
+  输出 ["moe", "larry", "curly"]
+  */
   _.pluck = function(obj, key) {
     return _.map(obj, _.property(key));
   };
 
   // Convenience version of a common use case of `filter`: selecting only objects
   // containing specific `key:value` pairs.
+  //锚点——下次继续——2018.02.28。
   _.where = function(obj, attrs) {
     return _.filter(obj, _.matcher(attrs));
   };
@@ -771,35 +811,49 @@
 
   // Use a comparator function to figure out the smallest index at which
   // an object should be inserted so as to maintain order. Uses binary search.
+  //使用二分法，查找一个合适的（最小的）索引来插入对象以维护顺序。
   _.sortedIndex = function(array, obj, iteratee, context) {
+    //如果没有指定iteratee迭代器，那么cb会返回_.identity函数作为新的迭代器，
+    //该函数输入值即为返回值。
     iteratee = cb(iteratee, context, 1);
+    //如果没有指定iteratee，则实际上下面句子等于var value = obj;
     var value = iteratee(obj);
     var low = 0, high = getLength(array);
     while (low < high) {
       var mid = Math.floor((low + high) / 2);
+      //如果没有传递iteratee参数，那么if中的语句实际上等价于array[mid] < value。
       if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
     }
     return low;
   };
 
   // Generator function to create the indexOf and lastIndexOf functions.
+  //创建（正向或者反向）索引查找函数。
   var createIndexFinder = function(dir, predicateFind, sortedIndex) {
+    //闭包。
     return function(array, item, idx) {
       var i = 0, length = getLength(array);
+      //如果传入了idx参数（实际上是叫fromIndex），并且是一个number值。
+      //此时idx为数字类型而非布尔类型，所以肯定不是有序数组，无法使用二分法加速查找。
       if (typeof idx == 'number') {
         if (dir > 0) {
           i = idx >= 0 ? idx : Math.max(idx + length, i);
         } else {
           length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
         }
-      } else if (sortedIndex && idx && length) {
+      } else if (sortedIndex && idx && length) {  
+        //正向查找时，具有sortedIndex参数，反向查找时没有。
+        //else if条件表明idx不是数字类型，如果此时idx为true，那么可以执行二分法快速查找。
         idx = sortedIndex(array, item);
         return array[idx] === item ? idx : -1;
       }
+      //此处很重要，使用item!==item来排除item为NaN的情况，
+      //因为NaN !== NaN的结果为true。
       if (item !== item) {
         idx = predicateFind(slice.call(array, i, length), _.isNaN);
         return idx >= 0 ? idx + i : -1;
       }
+      //如果idx（即fromIndex）为undefined，执行下面片段。
       for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
         if (array[idx] === item) return idx;
       }
@@ -811,6 +865,13 @@
   // or -1 if the item is not included in the array.
   // If the array is large and already in sort order, pass `true`
   // for **isSorted** to use binary search.
+  /*
+  _.indexOf(array, value, [isSorted]) 
+  返回value在该 array 中的索引值，如果value不存在 array中就返回-1。
+  使用原生的indexOf 函数，除非它失效。如果您正在使用一个大数组，你知道数组已经排序，
+  传递true给isSorted将更快的用二进制搜索..,或者，传递一个数字作为第三个参数，
+  为了在给定的索引的数组中寻找第一个匹配值。
+  */
   _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
   _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
 
@@ -1120,6 +1181,7 @@
   };
 
   // Retrieve the values of an object's properties.
+  //将对象中所有的自身属性的值都放入到一个数组。
   _.values = function(obj) {
     var keys = _.keys(obj);
     var length = keys.length;
@@ -1418,6 +1480,7 @@
 
   // Is a given value an array?
   // Delegates to ECMA5's native Array.isArray
+  //检测是否是一个数组对象，比检测类数组对象的isArrayLike方法更加严格。
   _.isArray = nativeIsArray || function(obj) {
     return toString.call(obj) === '[object Array]';
   };
@@ -1523,10 +1586,13 @@
   _.noop = function(){};
 
   _.property = function(path) {
+    //如果path不是一个数组，那么应该是一个字符串。
     if (!_.isArray(path)) {
+      //那么通过shallowProperty方法获取一个新的函数，该函数可以获取指定对象的path属性。
       return shallowProperty(path);
     }
     return function(obj) {
+      //如果path是一个数组，那么通过deepGet获取对应属性的值。
       return deepGet(obj, path);
     };
   };
