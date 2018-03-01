@@ -1496,14 +1496,21 @@
   };
 
   // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError, isMap, isWeakMap, isSet, isWeakSet.
+  //添加一系列的类型判断函数：比如isArguments、isFunction、isString等等。
+  //具体的方法是通过判断Object.prototype.toString方法来辨别其类型。
   _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet'], function(name) {
     _['is' + name] = function(obj) {
+      //相当于是：
+      //return Object.prototype.toString.call(obj) === `[object ${name}]`;
       return toString.call(obj) === '[object ' + name + ']';
     };
   });
 
   // Define a fallback version of the method in browsers (ahem, IE < 9), where
   // there isn't any inspectable "Arguments" type.
+  //在IE9之下的浏览器中不存在arguments类型的对象，所以需要创建一个后背版本。
+  //该版本检测函数通过判断传入的对象是否具有callee属性来判断是否是arguments对象。
+  //_.isArguments用于判断传入的参数是否是函数内的arguments对象。
   if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
       return _.has(obj, 'callee');
@@ -1520,16 +1527,25 @@
   }
 
   // Is a given object a finite number?
+  //判断给出的对象是否是一个非无穷大的数。
   _.isFinite = function(obj) {
     return !_.isSymbol(obj) && isFinite(obj) && !isNaN(parseFloat(obj));
   };
 
   // Is the given value `NaN`?
+  //判断参数是否是NaN，然而并不是广义上的NaN，因为经过实践证明，很多类型的参数传入到isNaN方法，都会返回true。
+  //比如：isNaN(undefined)、isNaN('asd')都会返回true，而不是我们想象中的只有isNaN(NaN)会返回true。
+  //这是为什么呢？因为isNaN在判断之前，会进行隐式转换，将某些不能强制转换为数值的非数值转换为数值的时候，也会得到NaN。
   _.isNaN = function(obj) {
+    //为了得到我们严格意义上的isNaN(NaN) === true。
+    //我们需要确保前提是Object.prototype.toString.call(NaN) === "[object Number]"。
+    //避免obj === undefined或者obj === 'abc这种强制转换失败返回NaN导致isNaN函数返回true的情况。
     return _.isNumber(obj) && isNaN(obj);
   };
+  //其实ES6引入了Number.isNaN函数，在检测时不会对参数进行强制转换，避免了以上情况的出现。
 
   // Is a given value a boolean?
+  //判断传入参数是否是一个布尔值。
   _.isBoolean = function(obj) {
     return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
   };
