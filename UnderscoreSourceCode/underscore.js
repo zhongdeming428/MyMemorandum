@@ -983,6 +983,8 @@
 
 	// Delays a function for the given number of milliseconds, and then calls
 	// it with the arguments supplied.
+	//延时函数，在wait毫秒之后调用func，并且将args数组中的元素作为参数传递给func。
+	//延时函数最后会返回TimeoutID。
 	_.delay = restArgs(function (func, wait, args) {
 		return setTimeout(function () {
 			return func.apply(null, args);
@@ -1043,27 +1045,40 @@
 	// be triggered. The function will be called after it stops being called for
 	// N milliseconds. If `immediate` is passed, trigger the function on the
 	// leading edge, instead of the trailing.
+	//去抖函数，传入的函数在wait时间之后执行，并且只会被执行一次。
+	//如果immediate传递为true，那么在函数被传递时就立即调用。
+	//实现原理：设计到异步JavaScript，多次调用_.debounce返回的函数，会一次性执行完，但是每次调用
+	//该函数又会清空上一次的TimeoutID，所以实际上只执行了最后一个setTimeout的内容。
 	_.debounce = function (func, wait, immediate) {
 		var timeout, result;
 
 		var later = function (context, args) {
 			timeout = null;
+			//如果没有传递args参数，那么func不执行。
 			if (args) result = func.apply(context, args);
 		};
 
+		//被返回的函数，该函数只会被调用一次。
 		var debounced = restArgs(function (args) {
+			//这行代码的作用是清除上一次的TimeoutID，
+			//使得如果有多次调用该函数的场景时，只执行最后一次调用的延时。
 			if (timeout) clearTimeout(timeout);
 			if (immediate) {
+				////如果传递了immediate并且timeout为空，那么就立即调用func，否则不立即调用。
 				var callNow = !timeout;
+				//下面这行代码，later函数内部的func函数注定不会被执行，因为没有给later传递参数。
+				//它的作用是确保返回了一个timeout。
 				timeout = setTimeout(later, wait);
 				if (callNow) result = func.apply(this, args);
 			} else {
+				//如果没有传递immediate，那么就使用_.delay函数延时执行later。
 				timeout = _.delay(later, wait, this, args);
 			}
 
 			return result;
 		});
 
+		//该函数用于取消当前去抖效果。
 		debounced.cancel = function () {
 			clearTimeout(timeout);
 			timeout = null;

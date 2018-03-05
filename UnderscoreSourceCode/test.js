@@ -11,7 +11,7 @@ var b = {
 };
 b['test1'] = b;
 
-console.log(_.isEqual(a, b));
+// console.log(_.isEqual(a, b));
 
 var set1 = new Set([1,2,3,4]);
 var set2 = new Set([1,2,3]);
@@ -32,3 +32,39 @@ var y = /.\w+/ig;
 
 // console.log(_.isEqual(x, y));
 
+var a = _.debounce((content)=>{
+    console.log('Yes!' + ' ' + content);
+}, 1000, false);
+// a(1);
+// a(2);
+// a(3);
+// a(4);
+
+// var debounce = function(callback, delay, immediate){
+//     var timeout, result;
+//     return function(){
+//         var callNow;
+//         if(timeout)
+//             clearTimeout(timeout);
+//         callNow = !timeout && immediate;
+//         if(callNow) {
+//             result = callback.apply(this, Array.prototype.slice.call(arguments, 0));
+//             timeout = {};
+//         }
+//         else {
+//             timeout = setTimeout(()=>{
+//                 callback.apply(this, Array.prototype.slice.call(arguments, 0));
+//             }, delay);
+//         }
+//     };
+// };
+
+// var b = debounce((x, y)=>{
+//     console.log(x + y);
+//     console.timeEnd();
+// }, 2000);
+// console.time();
+// b(1,1);
+// b(2,2);
+// b(3,3);
+// b(4,4);
