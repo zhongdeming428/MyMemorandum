@@ -1013,19 +1013,31 @@
 		};
 
 		var throttled = function () {
+			//获取当前时间戳（13位milliseconds表示）。
+			//每一次调用throttled函数，都会重新获取now，计算时间差。
+			//而previous只有在func函数被执行过后才回重新赋值。
+			//也就是说，每次计算的remaining时间间隔都是每次调用throttled函数与上一次执行func之间的时间差。
 			var now = _.now();
+			//第一次调用时，并且不是上升沿触发时，设置previous为当前时间戳now。
 			if (!previous && options.leading === false) previous = now;
+			//计算剩余时间，now-previous为已消耗时间。
 			var remaining = wait - (now - previous);
 			context = this;
 			args = arguments;
+			//remaining <= 0代表当前时间超过了wait时长。
+			//remaining > wait代表now < previous，这种情况是不存在的，因为now >= previous是永远成立的。
+			//此处就相当于只判断了remaining <= 0是否成立。
 			if (remaining <= 0 || remaining > wait) {
 				if (timeout) {
 					clearTimeout(timeout);
 					timeout = null;
 				}
+				//将要执行func函数，重新设置previous的值，开始下一轮计时。
 				previous = now;
+				//时间达到间隔为wait的要求，传入参数执行func函数。
 				result = func.apply(context, args);
 				if (!timeout) context = args = null;
+				//remaining>0时，timeout不存在，并且是下降沿触发时。
 			} else if (!timeout && options.trailing !== false) {
 				timeout = setTimeout(later, remaining);
 			}
@@ -1715,6 +1727,7 @@
 	};
 
 	// A (possibly faster) way to get the current timestamp as an integer.
+	//返回一个代表当前时间的时间戳。
 	_.now = Date.now || function () {
 		return new Date().getTime();
 	};
