@@ -22,29 +22,29 @@
 
 假设有以下代码：
 
-    var debounce = function(callback, delay, immediate){
-        var timeout, result;
-        return function(){
-            var callNow;
-            if(timeout)
-                clearTimeout(timeout);
-            callNow = !timeout && immediate;
-            if(callNow) {
-                result = callback.apply(this, Array.prototype.slice.call(arguments, 0));
-                timeout = {};
-            }
-            else {
-                timeout = setTimeout(()=>{
-                    callback.apply(this, Array.prototype.slice.call(arguments, 0));
-                }, delay);
-            }
-        };
-    };
-    var s = debounce(()=>{
-        console.log('yes...');
-    }, 2000);
-    window.onscroll = s;
-
+	//自己实现的简单演示代码，未实现immediate功能，欢迎改进。
+	var debounce = function (callback, delay, immediate) {
+		var timeout, result;
+		return function () {
+			var callNow;
+			if (timeout)
+				clearTimeout(timeout);
+			callNow = !timeout && immediate;
+			if (callNow) {
+				result = callback.apply(this, Array.prototype.slice.call(arguments, 0));
+				timeout = {};
+			}
+			else {
+				timeout = setTimeout(() => {
+					callback.apply(this, Array.prototype.slice.call(arguments, 0));
+				}, delay);
+			}
+		};
+	};
+	var s = debounce(() => {
+		console.log('yes...');
+	}, 2000);
+	window.onscroll = s;
 debounce函数就是我自己实现的一个简单的去抖函数，我们可以通过这段代码进行实验。
 
 步骤如下：
