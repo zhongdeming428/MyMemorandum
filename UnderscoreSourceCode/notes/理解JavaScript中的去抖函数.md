@@ -22,7 +22,6 @@
 
 假设有以下代码：
 
-	//演示函数，未实现immediate功能，欢迎改进。
     var debounce = function(callback, delay, immediate){
         var timeout, result;
         return function(){
