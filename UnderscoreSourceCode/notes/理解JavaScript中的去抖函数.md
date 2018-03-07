@@ -1,6 +1,6 @@
-# 理解JavaScript中的去抖函数
+# 理解Underscore中的去抖函数
 
-何为去抖函数？在学习JavaScript去抖函数之前我们需要先弄明白这个概念。很多人都会把去抖跟节流两个概念弄混，但是这两个概念其实是很好理解的。
+何为去抖函数？在学习Underscore去抖函数之前我们需要先弄明白这个概念。很多人都会把去抖跟节流两个概念弄混，但是这两个概念其实是很好理解的。
 
 去抖函数（Debounce Function），是一个可以限制指定函数触发频率的函数。我们可以理解为**连续调用**同一个函数多次，只得到执行该函数一次的结果;但是隔一段时间再次调用时，又可以重新获得新的结果，具体这段时间有多长取决于我们的设置。这种函数的应用场景有哪些呢？
 
@@ -22,7 +22,8 @@
 
 假设有以下代码：
 
-    var debounce = function(callback, delay, immediate){
+	//演示函数，未实现immediate功能，欢迎改进。
+    var debounce = function(callback, delay, immediate){
         var timeout, result;
         return function(){
             var callNow;
@@ -31,7 +32,7 @@
             callNow = !timeout && immediate;
             if(callNow) {
                 result = callback.apply(this, Array.prototype.slice.call(arguments, 0));
-                timeout = {};
+                timeout = {};
             }
             else {
                 timeout = setTimeout(()=>{
@@ -88,7 +89,10 @@ underscore源码如下（附代码注释）：
 				////如果传递了immediate并且timeout为空，那么就立即调用func，否则不立即调用。
 				var callNow = !timeout;
 				//下面这行代码，later函数内部的func函数注定不会被执行，因为没有给later传递参数。
-				//它的作用是确保返回了一个timeout。
+				//它的作用是确保返回了一个timeout,并且保持到wait毫秒之后，才执行later，
+				//清空timeout。而清空timeout是在immediate为true时，callNow为true的条件。
+				//timeout = setTimeout(later, wait)的存在是既保证上升沿触发，
+				//又保证wait内最多触发一次的必要条件。
 				timeout = setTimeout(later, wait);
 				if (callNow) result = func.apply(this, args);
 			} else {
