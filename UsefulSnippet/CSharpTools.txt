@@ -1,0 +1,428 @@
+public class Config
+    {
+        string siteName = "TSS WCF Services";
+
+        string appName = "TaskProcessEngine";
+
+        string hostHeader = "abs-dit.goldenstand.cn";
+
+        string ipAddress = "127.0.0.1";
+
+        string sitePhysicalPath = "E:\\TSSWCFServices";
+
+        string siteAppPoolName = "TSSAppPool";
+    }
+
+    public class IISWorker
+    {
+        public static string HostName = "localhost";
+
+        /// <summary>
+        /// 获取本地IIS版本
+        /// </summary>
+        /// <returns></returns>
+        public static string GetIIsVersion()
+        {
+            try
+            {
+                DirectoryEntry entry = new DirectoryEntry("IIS://" + HostName + "/W3SVC/INFO");
+                string version = entry.Properties["MajorIISVersionNumber"].Value.ToString();
+                return version;
+            }
+            catch (Exception se)
+            {
+                //说明一点:IIS5.0中没有(int)entry.Properties["MajorIISVersionNumber"].Value;属性，将抛出异常 证明版本为 5.0
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 创建虚拟目录网站
+        /// </summary>
+        /// <param name="webSiteName">网站名称</param>
+        /// <param name="physicalPath">物理路径</param>
+        /// <param name="domainPort">站点+端口，如192.168.1.23:90</param>
+        /// <param name="isCreateAppPool">是否创建新的应用程序池</param>
+        /// <returns></returns>
+        public static int CreateWebSite(string webSiteName, string physicalPath, string domainPort, bool isCreateAppPool)
+        {
+            DirectoryEntry root = new DirectoryEntry("IIS://" + HostName + "/W3SVC");
+            // 为新WEB站点查找一个未使用的ID
+            int siteID = 1;
+            foreach (DirectoryEntry e in root.Children)
+            {
+                if (e.SchemaClassName == "IIsWebServer")
+                {
+                    int ID = Convert.ToInt32(e.Name);
+                    if (ID >= siteID) { siteID = ID + 1; }
+                }
+            }
+            // 创建WEB站点
+            DirectoryEntry site = (DirectoryEntry)root.Invoke("Create", "IIsWebServer", siteID);
+            site.Invoke("Put", "ServerComment", webSiteName);
+            site.Invoke("Put", "KeyType", "IIsWebServer");
+            site.Invoke("Put", "ServerBindings", domainPort);
+            //site.Invoke("Put", "ServerBindings", "127.0.0.1:80:"+"poolcutwcf");
+            site.Invoke("Put", "ServerState", 2);
+            site.Invoke("Put", "FrontPageWeb", 1);
+            site.Invoke("Put", "DefaultDoc", "Default.html");
+            site.Invoke("Put", "SecureBindings", "127.0.0.1:443:abs-dit.goldenstand.cn");
+            site.Invoke("Put", "ServerAutoStart", 1);
+            site.Invoke("Put", "ServerSize", 1);
+            site.Invoke("SetInfo");
+            // 创建应用程序虚拟目录
+
+            DirectoryEntry siteVDir = site.Children.Add("Root", "IISWebVirtualDir");
+            siteVDir.Properties["AppIsolated"][0] = 2;
+            siteVDir.Properties["Path"][0] = physicalPath;
+            siteVDir.Properties["AccessFlags"][0] = 513;
+            siteVDir.Properties["FrontPageWeb"][0] = 1;
+            siteVDir.Properties["AppRoot"][0] = "LM/W3SVC/" + siteID + "/Root";
+            siteVDir.Properties["AppFriendlyName"][0] = "Root";
+
+            // 创建应用程序TaskProcessEngine
+            DirectoryEntry de = siteVDir.Children.Add("TaskProcessEngine", siteVDir.SchemaClassName);
+            de.CommitChanges();
+            de.Properties["Path"].Value = physicalPath + "/TaskProcessEngine";
+            de.Properties["AccessRead"][0] = true; // 勾选读取
+            de.Invoke("AppCreate", true);
+            de.Properties["EnableDefaultDoc"][0] = true;
+            de.Properties["AccessScript"][0] = true; // 脚本资源访问
+            de.Properties["DontLog"][0] = true; // 勾选记录访问
+            de.Properties["ContentIndexed"][0] = true; // 勾选索引资源
+            de.Properties["AppFriendlyName"][0] = "TaskProcessEngine"; //应用程序名
+            de.Properties["AuthFlags"][0] = 5;
+
+            if (isCreateAppPool)
+            {
+                DirectoryEntry apppools = new DirectoryEntry("IIS://" + HostName + "/W3SVC/AppPools");
+
+                //DirectoryEntry newpool = apppools.Children.Add(webSiteName, "IIsApplicationPool");
+                DirectoryEntry newpool = apppools.Children.Add("TSSAppPool", "IIsApplicationPool");
+                //newpool.Properties["AppPoolIdentityType"][0] = "4"; //4
+                newpool.Properties["AppPoolIdentityType"][0] = "1"; //4
+                newpool.Properties["ManagedPipelineMode"][0] = "0"; //0:集成模式 1:经典模式
+                newpool.CommitChanges();
+                //siteVDir.Properties["AppPoolId"][0] = webSiteName;
+                siteVDir.Properties["AppPoolId"][0] = "TSSAppPool";
+            }
+
+            siteVDir.CommitChanges();
+            site.CommitChanges();
+            return siteID;
+        }
+
+        /// <summary>
+        /// 得到网站的物理路径
+        /// </summary>
+        /// <param name="rootEntry">网站节点</param>
+        /// <returns></returns>
+        public static string GetWebsitePhysicalPath(DirectoryEntry rootEntry)
+        {
+            string physicalPath = "";
+            foreach (DirectoryEntry childEntry in rootEntry.Children)
+            {
+                if ((childEntry.SchemaClassName == "IIsWebVirtualDir") && (childEntry.Name.ToLower() == "root"))
+                {
+                    if (childEntry.Properties["Path"].Value != null)
+                    {
+                        physicalPath = childEntry.Properties["Path"].Value.ToString();
+                    }
+                    else
+                    {
+                        physicalPath = "";
+                    }
+                }
+            }
+            return physicalPath;
+        }
+
+        /// <summary>
+        /// 获取站点名
+        /// </summary>
+        public static List<IISInfo> GetServerBindings()
+        {
+            List<IISInfo> iisList = new List<IISInfo>();
+            string entPath = String.Format("IIS://{0}/w3svc", HostName);
+            DirectoryEntry ent = new DirectoryEntry(entPath);
+            foreach (DirectoryEntry child in ent.Children)
+            {
+                if (child.SchemaClassName.Equals("IIsWebServer", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (child.Properties["ServerBindings"].Value != null)
+                    {
+                        object objectArr = child.Properties["ServerBindings"].Value;
+                        string serverBindingStr = string.Empty;
+                        if (IsArray(objectArr))//如果有多个绑定站点时
+                        {
+                            object[] objectToArr = (object[])objectArr;
+                            serverBindingStr = objectToArr[0].ToString();
+                        }
+                        else//只有一个绑定站点
+                        {
+                            serverBindingStr = child.Properties["ServerBindings"].Value.ToString();
+                        }
+                        IISInfo iisInfo = new IISInfo();
+                        iisInfo.DomainPort = serverBindingStr;
+                        iisInfo.AppPool = child.Properties["AppPoolId"].Value.ToString();//应用程序池
+                        iisList.Add(iisInfo);
+                    }
+                }
+            }
+            return iisList;
+        }
+
+
+        public static bool CreateAppPool(string appPoolName, string Username, string Password)
+        {
+            bool issucess = false;
+            try
+            {
+                //创建一个新程序池
+                DirectoryEntry newpool;
+                DirectoryEntry apppools = new DirectoryEntry("IIS://" + HostName + "/W3SVC/AppPools");
+                newpool = apppools.Children.Add(appPoolName, "IIsApplicationPool");
+
+                //设置属性 访问用户名和密码 一般采取默认方式
+                newpool.Properties["WAMUserName"][0] = Username;
+                newpool.Properties["WAMUserPass"][0] = Password;
+                newpool.Properties["AppPoolIdentityType"][0] = "3";
+                newpool.Properties["ManagedPipelineMode"][0] = "0"; //0:集成模式 1:经典模式
+                newpool.CommitChanges();
+                issucess = true;
+                return issucess;
+            }
+            catch // (Exception ex) 
+            {
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// 建立程序池后关联相应应用程序及虚拟目录
+        /// </summary>
+        public static void SetAppToPool(string appname, string poolName)
+        {
+            //获取目录
+            DirectoryEntry getdir = new DirectoryEntry("IIS://localhost/W3SVC");
+            foreach (DirectoryEntry getentity in getdir.Children)
+            {
+                if (getentity.SchemaClassName.Equals("IIsWebServer"))
+                {
+                    //设置应用程序程序池 先获得应用程序 在设定应用程序程序池
+                    //第一次测试根目录
+                    foreach (DirectoryEntry getchild in getentity.Children)
+                    {
+                        if (getchild.SchemaClassName.Equals("IIsWebVirtualDir"))
+                        {
+                            //找到指定的虚拟目录.
+                            foreach (DirectoryEntry getsite in getchild.Children)
+                            {
+                                if (getsite.Name.Equals(appname))
+                                {
+                                    //【测试成功通过】
+                                    getsite.Properties["AppPoolId"].Value = poolName;
+                                    getsite.CommitChanges();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// 判断object对象是否为数组
+        /// </summary>
+        public static bool IsArray(object o)
+        {
+            return o is Array;
+        }
+    }
+    
+    public class IISInfo 
+    {
+        public string DomainPort;
+        public string AppPool;
+    }
+
+    public class CertificationHelper
+    {
+        public static bool importPFX(string certPath, string certPass)
+        {
+            // Create a collection object and populate it using the PFX file
+            X509Certificate2Collection collection = new X509Certificate2Collection();
+            try
+            {
+                collection.Import(certPath, certPass, X509KeyStorageFlags.PersistKeySet);
+
+                foreach (X509Certificate2 cert in collection)
+                {
+                    X509Store store = new X509Store();
+                    store.Open(OpenFlags.MaxAllowed);
+                    store.Add(cert);
+                    store.Close();
+                    // Import the certificate into an X509Store object
+                }
+            }
+            catch (Exception e)
+            {
+                //throw(e);
+                return false;
+            }
+            return true;
+        }
+        public static bool importCER(string cerFileName)
+        {
+            try
+            {
+                X509Certificate2 certificate = new X509Certificate2(cerFileName);
+                X509Store store = new X509Store(StoreName.TrustedPublisher, StoreLocation.LocalMachine);
+
+                store.Open(OpenFlags.ReadWrite);
+                store.Add(certificate);
+                store.Close();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    public class DataBase
+    {
+        public static void exeSQLPackage()
+        {
+            string rootPath = Path.GetDirectoryName(Application.ExecutablePath);
+            string publishPath = rootPath + @"\DB\TaskProcessEngine.Database.publish.xml";
+            string dacPath = rootPath + @"\DB\TaskProcessEngine.Database.dacpac";
+            try
+            {
+                string sqlPackageDir = @"C:\Program Files (x86)\Microsoft SQL Server\120\DAC\bin\";
+                string arguStr = @"/Action:Publish /SourceFile:""" + dacPath + @""" /Profile:""" + publishPath + @""" /p:BlockOnPossibleDataLoss=false /p:DropIndexesNotInSource=false /p:GenerateSmartDefaults=true";
+
+                System.Diagnostics.Process exep = new System.Diagnostics.Process();
+                exep.StartInfo.WorkingDirectory = sqlPackageDir;
+                exep.StartInfo.FileName = "SqlPackage.exe";
+                exep.StartInfo.Arguments = arguStr;
+                exep.StartInfo.UseShellExecute = true;
+                //exep.StartInfo.RedirectStandardInput = true;
+                //exep.StartInfo.RedirectStandardOutput = true;
+                //exep.StartInfo.CreateNoWindow = false;
+                //richTextBox1.Text = sqlPackageDir + "SqlPackage.exe" + arguStr;
+                exep.Start();
+                exep.WaitForExit();
+                //label1.Text += exep.ExitTime + "  " + ((exep.ExitCode == 0) ? "Deploy DataBase success!" : "Deploy DataBase failed!");
+                //pictureBox1.Image = ((exep.ExitCode == 0) ? img.success : img.failed);
+                //button1.Enabled = (exep.ExitCode == 0) ? false : true;
+                //exep.BeginOutputReadLine();
+                //exep.OutputDataReceived += new DataReceivedEventHandler(processOutputDataReceived);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        public static bool deployDB(string dacpacPath, string connectionStr)
+        {
+            var dp = DacPackage.Load(dacpacPath);
+            var dbDeployOptions = new DacDeployOptions
+            {
+                BlockOnPossibleDataLoss = false,
+                DropIndexesNotInSource = false,
+                GenerateSmartDefaults = true
+            };
+            try
+            {
+                var dbServices = new DacServices(connectionStr);
+                dbServices.Deploy(dp, "TaskProcess", true, dbDeployOptions);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+    }
+
+    public class Tools
+    {
+        public static bool copyFiles()
+        {
+            string dirExistWarn = @"The directory 'E:\TSSWCFServices' is existing, deploy failed, please delete this directory!";
+            bool dirFlag = Directory.Exists(@"E:\TSSWCFServices");
+            if (dirFlag)
+            {
+                MessageBox.Show(dirExistWarn, "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            else
+            {
+                CopyDir("./TaskProcessEngine/", "E:/TSSWCFServices/TaskProcessEngine");
+            }
+            return true;
+        }
+        public static void CopyDir(string srcPath, string aimPath)
+        {
+            try
+            {
+                // 检查目标目录是否以目录分割字符结束如果不是则添加
+                if (aimPath[aimPath.Length - 1] != System.IO.Path.DirectorySeparatorChar)
+                {
+                    aimPath += System.IO.Path.DirectorySeparatorChar;
+                }
+                // 判断目标目录是否存在如果不存在则新建
+                if (!System.IO.Directory.Exists(aimPath))
+                {
+                    System.IO.Directory.CreateDirectory(aimPath);
+                }
+                // 得到源目录的文件列表，该里面是包含文件以及目录路径的一个数组
+                // 如果你指向copy目标文件下面的文件而不包含目录请使用下面的方法
+                // string[] fileList = Directory.GetFiles（srcPath）；
+                string[] fileList = System.IO.Directory.GetFileSystemEntries(srcPath);
+                // 遍历所有的文件和目录
+                foreach (string file in fileList)
+                {
+                    // 先当作目录处理如果存在这个目录就递归Copy该目录下面的文件
+                    if (System.IO.Directory.Exists(file))
+                    {
+                        CopyDir(file, aimPath + System.IO.Path.GetFileName(file));
+                    }
+                    // 否则直接Copy文件
+                    else
+                    {
+                        System.IO.File.Copy(file, aimPath + System.IO.Path.GetFileName(file), true);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+        public static void IsAdministrator()
+        {
+
+            WindowsIdentity current = WindowsIdentity.GetCurrent();
+
+            WindowsPrincipal windowsPrincipal = new WindowsPrincipal(current);
+
+            if (windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator))
+            {
+                if (DialogResult.OK == MessageBox.Show("please run as administrator!!", "Warning", MessageBoxButtons.OK))
+                {
+
+                    Environment.Exit(0);
+
+                }
+            }
+
+        }
+    }

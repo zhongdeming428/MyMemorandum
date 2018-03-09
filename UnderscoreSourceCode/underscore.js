@@ -1006,6 +1006,8 @@
 		if (!options) options = {};
 
 		var later = function () {
+			//previous===0时，下一次会立即触发。
+			//previous===_.now()时，下一次不会立即触发。
 			previous = options.leading === false ? 0 : _.now();
 			timeout = null;
 			result = func.apply(context, args);
@@ -1018,7 +1020,9 @@
 			//而previous只有在func函数被执行过后才回重新赋值。
 			//也就是说，每次计算的remaining时间间隔都是每次调用throttled函数与上一次执行func之间的时间差。
 			var now = _.now();
-			//第一次调用时，并且不是上升沿触发时，设置previous为当前时间戳now。
+			//!previous确保了在第一次调用时才会满足条件。
+			//leading为false表示不立即执行。
+			//注意是全等号，只有在传递了options参数时，比较才有意义。
 			if (!previous && options.leading === false) previous = now;
 			//计算剩余时间，now-previous为已消耗时间。
 			var remaining = wait - (now - previous);
@@ -1034,10 +1038,12 @@
 				}
 				//将要执行func函数，重新设置previous的值，开始下一轮计时。
 				previous = now;
-				//时间达到间隔为wait的要求，传入参数执行func函数。
+				//时间达到间隔为wait的要求，立即传入参数执行func函数。
 				result = func.apply(context, args);
 				if (!timeout) context = args = null;
-				//remaining>0时，timeout不存在，并且是下降沿触发时。
+				//remaining>0&&remaining<=wait、不忽略最后一个输出、
+				//timeout未被设置时，延时调用later并设置timeout。
+				//如果设置trailing===false，那么直接跳过延时调用later的部分。
 			} else if (!timeout && options.trailing !== false) {
 				timeout = setTimeout(later, remaining);
 			}
@@ -1065,6 +1071,7 @@
 		var timeout, result;
 
 		var later = function (context, args) {
+			//每次调用later都会导致timeout清空，清空timeout才能在immediate为true时callNow也为true。
 			timeout = null;
 			//如果没有传递args参数，那么func不执行。
 			if (args) result = func.apply(context, args);

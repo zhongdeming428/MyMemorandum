@@ -32,9 +32,9 @@ var y = /.\w+/ig;
 
 // console.log(_.isEqual(x, y));
 
-var a = _.debounce((content)=>{
-    console.log('Yes!' + ' ' + content);
-}, 1000, false);
+// var a = _.debounce((content)=>{
+//     console.log('Yes!' + ' ' + content);
+// }, 1000, false);
 // a(1);
 // a(2);
 // a(3);
@@ -69,3 +69,12 @@ var a = _.debounce((content)=>{
 // b(3,3);
 // b(4,4);
 
+var a = _.throttle(()=>{
+    console.log('yes');
+}, 100000, {
+    // leading:true,
+    // trailing:false
+});
+while(1){
+    a();
+}
