@@ -1029,9 +1029,10 @@
 			context = this;
 			args = arguments;
 			//remaining <= 0代表当前时间超过了wait时长。
-			//remaining > wait代表now < previous，这种情况是不存在的，因为now >= previous是永远成立的。
+			//remaining > wait代表now < previous，这种情况是不存在的，因为now >= previous是永远成立的(除非主机时间已经被修改过)。
 			//此处就相当于只判断了remaining <= 0是否成立。
 			if (remaining <= 0 || remaining > wait) {
+				//防止出现remaining <= 0但是设置的timeout仍然未触发的情况。
 				if (timeout) {
 					clearTimeout(timeout);
 					timeout = null;

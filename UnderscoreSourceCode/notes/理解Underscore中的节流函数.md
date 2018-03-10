@@ -8,7 +8,7 @@
 
 通过这张我手画的图，我相信可以更容易理解函数节流这个概念。
 
-![throttle](.\images\throttle.png)
+![throttle](./images/throttle.png)
 
 在这张粗制滥造的手绘图中，从左往右的轴线表示时间轴，下方的粗蓝色线条表示不断的调用throttled函数（看做连续发生的），而上方的一个一个节点表示我们得到的执行func函数的结果。
 
@@ -70,9 +70,10 @@
 			context = this;
 			args = arguments;
 			//remaining <= 0代表当前时间超过了wait时长。
-			//remaining > wait代表now < previous，这种情况是不存在的，因为now >= previous是永远成立的。
+			//remaining > wait代表now < previous，这种情况是不存在的，因为now >= previous是永远成立的(除非主机时间已经被修改过)。
 			//此处就相当于只判断了remaining <= 0是否成立。
 			if (remaining <= 0 || remaining > wait) {
+				//防止出现remaining <= 0但是设置的timeout仍然未触发的情况。
 				if (timeout) {
 					clearTimeout(timeout);
 					timeout = null;
@@ -91,7 +92,6 @@
 			return result;
 		};
 
-        //供外部手动取消节流效果。
 		throttled.cancel = function () {
 			clearTimeout(timeout);
 			previous = 0;
@@ -108,3 +108,101 @@
 * options.trailing === false时
 
 ### 2.1 默认情况（options === undefined）
+在默认情况下调用throttled函数时，options是一个空的对象`{}`，此时`options.leading!==false`并且`options.trailing!==false`，那么throttled函数中的第一个if会被忽略掉，因为options.leading === false永远不会满足。
+
+此时，不断地调用throttled函数，会按照以下方式执行：
+
+* 用now变量保存当前调用时的时间戳，previous默认为0，计算remaining剩余时间，此时应该会小于0，满足了`if (remaining <= 0 || remaining > wait)`。
+
+* 清空timeout并清除其事件，为previous重新赋值以记录当前调用throttled函数的值。
+
+* 能够进入当前的if语句表示剩余时间不足或者是第一次调用throttled函数（且options.leading !== false），那么将会立即执行func函数，使用result记录执行后的返回值。
+
+* 下一次调用throttled函数时，重新计算当前时间和剩余时间，如果剩余时间不足那么仍然立即执行func，如此不断地循环。如果remaining时间足够（大于0），那么会进入else if语句，设置一个timeout异步事件，此时注意到timeout会被赋值，直到later被调用才回被赋值为null。这样做的目的就是为了防止不断进入else if条件语句重复设置timeout异步事件，影响性能，消耗资源。
+
+* 之后调用throttled函数，都会按照这样的方式执行。
+
+通过上面的分析，我们可以发现，除非设置options.leading===false，否则第一次执行throttled函数时，条件语句`if (!previous && options.leading === false) previous = now;`不会被执行。间接导致remaining<0，然后进入if语句立即执行func函数。
+
+接下来我们看看设置options.leading === false时的情况。
+
+### 2.2 options.leading === false
+
+设置options.leading为false时，执行情况与之前并没有太大差异，仅在于`if(!previous && options.leading === false)`语句。当options.leading为false时，第一次执行会满足这个条件，所以赋值previous=== now，间接使得remaining>0。
+
+由于timeout此时为undefined，所以!timeout为true。设置later为异步任务，在remaining时间之后执行。
+
+此后再不断的调用throttled方法，思路同2.1无异，因为!previous为false，所以`if(!previous && options.leading === false)`该语句不再判断，会被完全忽略。可以理解为设置判断!previous的目的就是在第一次调用throttled函数时，判断options.leading是否为false，之后便不再进行判断。
+
+### 2.3 options.trailing === false
+
+此时的区别在于else if中的执行语句。如果`options.trailing === false`成立，那么当remaining>0时间足够时，不会设置timeout异步任务。那么如何实现时间到就立即执行func呢？是通过不断的判断remaining，一旦`remaining <= 0`成立，那么就立即执行func。
+
+接下来，我们手动实现一个简单的throttle函数。
+
+## 实现一个简单的throttle函数
+
+首先，我们需要多个throttled函数共享一些变量，比如previous、result、timeout，所以最好的方案仍然是使用闭包，将这些共享的变量作为throttle函数的私有变量。
+
+其次，我们需要在返回的函数中不断地获取调用该函数时的时间戳now，不断地计算remaining剩余时间，为了实现trailing不等于false时的效果，我们还需要设置timeout。
+
+最终代码如下：
+
+	var throttle = function(func, wait) {
+		var timeout, result, now;
+		var previous = 0;
+		
+		return function() {
+			now = +(new Date());
+		
+			if(now - previous >= wait) {
+				if(timeout) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+				previous = now;
+				result = func.apply(this, arguments);
+			}
+			else if(!timeout) {
+				timeout = setTimeout(function() {
+					previous = now;
+					result = func.apply(this, arguments);
+					timeout = null;
+				}, wait - now + previous);
+			}
+			return result;
+		}
+	}
+
+可能大家发现了一个问题就是我的now变量也是共享的变量，而underscore中是throttled函数的私有变量，为什么呢？
+
+我们可以注意到：underscore设置timeout时，调用的是另外一个throttle函数的私有函数，叫做later。later在更新previous的时候，使用的是`previous = options.leading === false ? 0 : _.now();`也就是通过`_.now`函数直接获取later被调用时的时间戳。而我使用的是`previous = now`，如果now做成throttled的私有变量，那么timeout的异步任务执行时，设置的previous仍然是过去的时间，而非异步任务被执行时的当前时间。这样做直接导致的结果就是previous相比实际值更小，remaining会更大，下一次func触发会来的更早！
+
+下面这段代码是对上面代码的应用，大家可以直接拷贝到浏览器的控制台，回车然后在页面上滚动鼠标滚轮，看看这个函数实现了怎样的功能，更有利于你对这篇文章的理解！
+
+	var throttle = function(func, wait) {
+		var timeout, result, now;
+		var previous = 0;
+		
+		return function() {
+			now = +(new Date());
+		
+			if(now - previous >= wait) {
+				if(timeout) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+				previous = now;
+				result = func.apply(this, arguments);
+			}
+			else if(!timeout) {
+				timeout = setTimeout(function() {
+					previous = now;
+					result = func.apply(this, arguments);
+					timeout = null;
+				}, wait - now + previous);
+			}
+			return result;
+		}
+	}
+	window.onscroll = throttle(()=>{console.log('yes')}, 2000);

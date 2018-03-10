@@ -69,12 +69,39 @@ var y = /.\w+/ig;
 // b(3,3);
 // b(4,4);
 
-var a = _.throttle(()=>{
-    console.log('yes');
-}, 100000, {
-    // leading:true,
-    // trailing:false
-});
-while(1){
-    a();
+// var a = _.throttle(()=>{
+//     console.log('yes');
+// }, 100000, {
+//     // leading:true,
+//     // trailing:false
+// });
+// while(1){
+//     a();
+// }
+
+var throttle = function(func, wait){
+    var timeout, result, now;
+    var previous = 0;
+    
+    return function() {
+        now = +(new Date());
+    
+        if(now - previous >= wait) {
+            if(timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            previous = now;
+            result = func.apply(this, arguments);
+        }
+        else if(!timeout) {
+            timeout = setTimeout(function() {
+                previous = now;
+                result = func.apply(this, arguments);
+                timeout = null;
+            }, wait - now + previous);
+        }
+        return result;
+    }
 }
+window.onscroll = throttle(()=>{console.log('yes')}, 2000);
