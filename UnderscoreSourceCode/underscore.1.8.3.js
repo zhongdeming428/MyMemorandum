@@ -928,7 +928,7 @@
 	// or a normal function with the provided arguments.
 	//执行绑定函数，决定是否把一个函数作为构造函数或者普通函数调用。
 	var executeBound = function (sourceFunc, boundFunc, context, callingContext, args) {
-		//如果callingContext是boundFunc的一个实例，则把sourceFunc作为普通函数调用。
+		//如果callingContext不是boundFunc的一个实例，则把sourceFunc作为普通函数调用。
 		if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
 		//否则把sourceFunc作为构造函数调用。
 		var self = baseCreate(sourceFunc.prototype);
