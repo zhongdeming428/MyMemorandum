@@ -153,13 +153,14 @@
 	// This accumulates the arguments passed into an array, after a given index.
 
 	//restArgs用于把func的位于startIndex之后的参数归类为一个数组，
-	//然后把这个数组结合startIndex之前的参数传递给func调用。
+	//然后返回一个函数把这个数组结合startIndex之前的参数传递给func调用。
 	var restArgs = function (func, startIndex) {
 		//function.length表示function定义时，形式参数的个数。
 		//注意此处是func.length，即传入的方法参数的形参个数而不是当前函数的参数个数，需要结合具体传入的参数来看。
+		//当startIndex参数未传递时，默认func函数的最后一个参数开始为多余参数，会被整合到数组中。
 		startIndex = startIndex == null ? func.length - 1 : +startIndex;
-		//一下函数才是实际上的_.invoke函数，此时startIndex = 2。
 		return function () {
+			//length表示构造的多余参数数组的长度，是实际的多余参数或者0。
 			var length = Math.max(arguments.length - startIndex, 0),
 				rest = Array(length),
 				index = 0;
@@ -176,6 +177,8 @@
 			//如果startIndex > 2，那么使用apply传递数组作为参数的方式执行func。
 			//虽然调用方法发生了变化，但是还是会把rest数组放在传入的参数数组的最后。
 			//这样做其实与之前的方法无异（switch部分可以删除），但是call的效率高于apply。
+			
+			//args数组用于盛放startIndex之前的非多余参数。
 			var args = Array(startIndex + 1);
 			for (index = 0; index < startIndex; index++) {
 				args[index] = arguments[index];
@@ -663,21 +666,27 @@
 	};
 
 	// Internal implementation of a recursive `flatten` function.
+	//用于展开一个数组或者类数组对象。
 	var flatten = function (input, shallow, strict, output) {
 		output = output || [];
 		var idx = output.length;
+		//遍历input参数。
 		for (var i = 0, length = getLength(input); i < length; i++) {
 			var value = input[i];
+			//如果input数组的元素是数组或者类数组对象，根据是否shallow来展开，如果shallow为true，那么只展开一级。
 			if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
 				// Flatten current level of array or arguments object.
 				if (shallow) {
 					var j = 0, len = value.length;
 					while (j < len) output[idx++] = value[j++];
 				} else {
+					//如果shallow为false，那么递归展开所有层级。
 					flatten(value, shallow, strict, output);
 					idx = output.length;
 				}
 			} else if (!strict) {
+				//如果value不是数组或类数组对象，并且strict为false。
+				//那么直接将value添加到输出数组，否则忽略value。
 				output[idx++] = value;
 			}
 		}
@@ -917,8 +926,11 @@
 
 	// Determines whether to execute a function as a constructor
 	// or a normal function with the provided arguments.
+	//执行绑定函数，决定是否把一个函数作为构造函数或者普通函数调用。
 	var executeBound = function (sourceFunc, boundFunc, context, callingContext, args) {
+		//如果callingContext不是boundFunc的一个实例，则把sourceFunc作为普通函数调用。
 		if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
+		//否则把sourceFunc作为构造函数调用。
 		var self = baseCreate(sourceFunc.prototype);
 		var result = sourceFunc.apply(self, args);
 		if (_.isObject(result)) return result;
@@ -928,9 +940,11 @@
 	// Create a function bound to a given object (assigning `this`, and arguments,
 	// optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
 	// available.
+	//将指定函数中的this绑定到指定上下文中，并传递一些参数作为默认参数。
 	_.bind = restArgs(function (func, context, args) {
 		if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
 		var bound = restArgs(function (callArgs) {
+			//等同于func.apply(context, args.concat(callArgs))。
 			return executeBound(func, bound, context, this, args.concat(callArgs));
 		});
 		return bound;
@@ -940,31 +954,43 @@
 	// arguments pre-filled, without changing its dynamic `this` context. _ acts
 	// as a placeholder by default, allowing any combination of arguments to be
 	// pre-filled. Set `_.partial.placeholder` for a custom placeholder argument.
+	//使用restArgs进行处理，把传给partial的多余参数整合到boundArgs数组，然后再交给匿名函数处理。
 	_.partial = restArgs(function (func, boundArgs) {
+		//默认占位符为_，下划线。
 		var placeholder = _.partial.placeholder;
 		var bound = function () {
+			//该函数接受的参数是用于替代boundArgs中占位符的具体参数。
 			var position = 0, length = boundArgs.length;
 			var args = Array(length);
+			//遍历boundArgs数组，如果数组中有占位符，则用bound所接受的参数按顺序依次替代。
 			for (var i = 0; i < length; i++) {
 				args[i] = boundArgs[i] === placeholder ? arguments[position++] : boundArgs[i];
 			}
+			//当position小于bound函数的参数个数时，说明bound函数还接受了多余的参数，也放入args数组。
 			while (position < arguments.length) args.push(arguments[position++]);
+			//此处相当于：
+			//return func.apply(this, args);
 			return executeBound(func, bound, this, this, args);
 		};
 		return bound;
 	});
 
+	//默认的_.partial的占位符，可以手动修改，注意是变量_，不是字符串“_”。
 	_.partial.placeholder = _;
 
 	// Bind a number of an object's methods to that object. Remaining arguments
 	// are the method names to be bound. Useful for ensuring that all callbacks
 	// defined on an object belong to it.
+	//将obj对象中的方法的this指向obj，防止在传递函数时，函数的this丢失指向。
 	_.bindAll = restArgs(function (obj, keys) {
+		//传递的keys是一个函数名称（字符串）数组，而且有可能存在嵌套，那么使用flatten函数进行展开。
 		keys = flatten(keys, false, false);
 		var index = keys.length;
 		if (index < 1) throw new Error('bindAll must be passed function names');
+		//遍历keys数组。
 		while (index--) {
 			var key = keys[index];
+			//给obj的key属性重新赋值，新函数覆盖之前的函数。
 			obj[key] = _.bind(obj[key], obj);
 		}
 	});
@@ -1136,6 +1162,7 @@
 	};
 
 	// Returns a function that will only be executed on and after the Nth call.
+	//返回一个函数，只有在第times次执行时才会返回执行结果。
 	_.after = function (times, func) {
 		return function () {
 			if (--times < 1) {
@@ -1145,12 +1172,17 @@
 	};
 
 	// Returns a function that will only be executed up to (but not including) the Nth call.
+	//返回一个函数只能被执行times-1次，多余的执行会返回之前执行的结果。
 	_.before = function (times, func) {
+		//用于保存最后一次有效执行的结果。
 		var memo;
 		return function () {
+			//如果超过了指定的执行次数，memo的值不会再变化。
 			if (--times > 0) {
+				//有效执行次数之内，返回正确的执行结果。
 				memo = func.apply(this, arguments);
 			}
+			//如果执行次数耗尽，把func赋值为null，以便让GC回收。
 			if (times <= 1) func = null;
 			return memo;
 		};
@@ -1158,6 +1190,8 @@
 
 	// Returns a function that will be executed at most one time, no matter how
 	// often you call it. Useful for lazy initialization.
+	//调用partial函数使指定函数最多只能执行一次，相当于是调用_.before(2, func);
+	//_.once接受的参数，会附加到参数2后面传递给_.before函数调用。
 	_.once = _.partial(_.before, 2);
 
 	_.restArgs = restArgs;
@@ -1647,13 +1681,20 @@
 
 	// Shortcut function for checking if an object has a given property directly
 	// on itself (in other words, not on a prototype).
+	//对象是否包含给定的键吗（不是从原型继承来的）？等同于object.hasOwnProperty(key)，
+	//但是使用hasOwnProperty 函数的一个安全引用，以防意外覆盖。
 	_.has = function (obj, path) {
+		//如果path不是一个数组，那么应该就是一个字符串，表示对象属性。
+		//直接使用Object.prototype.hasOwnProperty来判断。
 		if (!_.isArray(path)) {
 			return obj != null && hasOwnProperty.call(obj, path);
 		}
+		//path是一个数组，先取其长度。
 		var length = path.length;
+		//循环遍历数组。
 		for (var i = 0; i < length; i++) {
 			var key = path[i];
+			//一旦obj为null或者不含下一个属性，那么直接返回false。
 			if (obj == null || !hasOwnProperty.call(obj, key)) {
 				return false;
 			}
