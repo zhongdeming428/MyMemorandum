@@ -8,8 +8,14 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Run Test",
             "program": "${workspaceFolder}/test.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run Underscore",
+            "program": "${workspaceFolder}/underscore.js"
         }
     ]
 }
