@@ -1,6 +1,6 @@
 //这个js文件用于测试underscore接口。
 
-const _ = require('./underscore.js');
+const _ = require('./underscore.1.8.3.js');
 
 // var a = {
 //     name: 'test'

@@ -944,7 +944,7 @@
 	_.bind = restArgs(function (func, context, args) {
 		if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
 		var bound = restArgs(function (callArgs) {
-			//类似于func.apply(context, args.concat(callArgs))；
+			//等同于func.apply(context, args.concat(callArgs))。
 			return executeBound(func, bound, context, this, args.concat(callArgs));
 		});
 		return bound;
