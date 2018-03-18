@@ -148,6 +148,7 @@ const _ = require('./underscore.1.8.3.js');
 // console.log(a([], (x) => {
 //     return x > 1;
 // }, 1, 2, 3, 0));
+<<<<<<< HEAD
 
 
 // function A(name){
@@ -184,3 +185,5 @@ var b = B();
 var bb = new B();
 console.log(test);
 console.log(bb);
+=======
+>>>>>>> 016f3b938faf58c69049fb2e7270455bf5e874c3
