@@ -8,3 +8,4 @@
 * 函数操作类方法
     * [理解Underscore中的去抖函数](./notes/理解Underscore中的去抖函数.md)
     * [理解Underscore中的节流函数](./notes/理解Underscore中的节流函数.md)
+    * [理解Underscore中的bind函数](./notes/理解Underscore中的bind函数.md)

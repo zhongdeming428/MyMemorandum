@@ -185,5 +185,3 @@ var b = B();
 var bb = new B();
 console.log(test);
 console.log(bb);
-=======
->>>>>>> 016f3b938faf58c69049fb2e7270455bf5e874c3

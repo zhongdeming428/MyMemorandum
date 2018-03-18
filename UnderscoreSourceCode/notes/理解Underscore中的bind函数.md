@@ -28,11 +28,31 @@ executeBound源码（附注释）：
 		var result = sourceFunc.apply(self, args);
             //这里之所以要判断一下是因为如果构造函数有返回值并且返回值是一个对象，那么新构造的对象就会是返回值，而非this所指向的值。
 		if (_.isObject(result)) return result;
-            //只有在构造函数没有返回值时，才返回this所指向的值。
+            //只有在构造函数没有返回值或者返回值时非对象时，才返回this所指向的值。
 		return self;
 	};
 
-这个函数的功能非常好理解，就是根据实际情况来决定是否把一个函数（sourceFunc）当做构造函数或者普通函数来调用。这个根据的条件就是看callingContext参数是否是boundFunc函数的一个实例。如果callingContext是boundFunc的一个实例，那么就把sourceFunc当做一个构造函数来调用，否则就当做一个普通函数来调用，使用Function.prototype.apply来改变sourceFunc中this的指向。
+首先我们先看为什么在executeBound函数结尾需要判断一下result，原因已经写明在注释里，请大家一定仔细注意！
+举一个帮助理解的例子：
+
+    var A = function() {
+        this.name = 'A';
+        return {};
+    }
+    var B = function() {
+        this.name = 'B';
+    }
+    var C = function() {
+        this.name = 'C';
+        return 'C';
+    }
+    var a = new A();
+    var b = new B();
+    var c = new C();
+
+在浏览器中输出a、b、c，看看你会发现什么？然后再来仔细思考代码中注释的部分吧。
+
+其次回到我们这篇文章的重点，这个函数的功能非常好理解，就是根据实际情况来决定是否把一个函数（sourceFunc）当做构造函数或者普通函数来调用。这个根据的条件就是看callingContext参数是否是boundFunc函数的一个实例。如果callingContext是boundFunc的一个实例，那么就把sourceFunc当做一个构造函数来调用，否则就当做一个普通函数来调用，使用Function.prototype.apply来改变sourceFunc中this的指向。
 
 单独开这个函数可能会使我们变得疑惑，为什么要这么做呢？这个callingContext跟boundFunc是什么关系？为什么要根据这两个参数的关系来决定是否以构造函数的形式调用sourceFunc。
 
@@ -114,4 +134,4 @@ executeBound源码（附注释）：
 
 在阅读这篇文章之前，你会如何实现一个bind函数呢？
 
-更多Underscore源码解读
+更多Underscore源码解读：[GitHub](https://github.com/zhongdeming428/MyMemorandum/tree/master/UnderscoreSourceCode)
