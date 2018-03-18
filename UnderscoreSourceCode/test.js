@@ -148,3 +148,39 @@ const _ = require('./underscore.1.8.3.js');
 // console.log(a([], (x) => {
 //     return x > 1;
 // }, 1, 2, 3, 0));
+
+
+// function A(name){
+//     this.name = name
+// }
+// var _A = _.bind(A);
+// console.log(new _A('zdm'));
+// console.log(new A('zdm'));
+
+var _bind = function(func, context) {
+    var bound = function() {
+        if(this instanceof bound) {
+            var obj = new Object();
+            obj.prototype = func.prototype;
+            obj.prototype.constructor = func;
+            var res = func.call(obj);
+            if(typeof res == 'function' || typeof res == 'object' && !!res)
+                return res;
+            else
+                return obj
+        }
+        else {
+            return func.call(context);
+        }
+    };
+    return bound; 
+}
+
+var test = {};
+var B = _bind(function() {
+    this.name = 'B';
+}, test);
+var b = B();
+var bb = new B();
+console.log(test);
+console.log(bb);
