@@ -996,11 +996,16 @@
 	});
 
 	// Memoize an expensive function by storing its results.
+	//_.memoize可以缓存func的运算结果，hasher是一个生成hash值的函数。
 	_.memoize = function (func, hasher) {
+		//闭包。
 		var memoize = function (key) {
 			var cache = memoize.cache;
+			//address等于hasher的返回值或者key（默认）。
 			var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+			//如果cache没有address值属性（之前未被执行过），那么缓存此次执行结果。
 			if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
+			//最后还是返回执行结果。
 			return cache[address];
 		};
 		memoize.cache = {};
