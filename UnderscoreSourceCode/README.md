@@ -12,4 +12,4 @@
 
 * 数组操作类方法
 
-    * [理解Underscore中的flatten函数](./notes/理解Underscore中的flatten函数.md)
+    * [理解Underscore中的flatten函数](./notes/理解Underscore中的flatten函数.md)
