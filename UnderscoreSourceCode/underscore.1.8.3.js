@@ -673,9 +673,9 @@
 		//遍历input参数。
 		for (var i = 0, length = getLength(input); i < length; i++) {
 			var value = input[i];
-			//如果input数组的元素是数组或者类数组对象，根据是否shallow来展开，如果shallow为true，那么只展开一级。
 			if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
 				// Flatten current level of array or arguments object.
+				//如果input数组的元素是数组或者类数组对象，根据是否shallow来展开，如果shallow为true，那么只展开一级。
 				if (shallow) {
 					var j = 0, len = value.length;
 					while (j < len) output[idx++] = value[j++];
@@ -1934,6 +1934,7 @@
 	};
 
 	// Add a "chain" function. Start chaining a wrapped Underscore object.
+	//将传入的对象包装为链式调用的对象，将其标志位置位true。
 	_.chain = function (obj) {
 		var instance = _(obj);
 		instance._chain = true;
@@ -1947,6 +1948,7 @@
 	// underscore functions. Wrapped objects may be chained.
 
 	// Helper function to continue chaining intermediate results.
+	//返回一个链式调用的对象，通过判断instance._chain属性是否为true来决定是否返回链式对象。
 	var chainResult = function (instance, obj) {
 		return instance._chain ? _(obj).chain() : obj;
 	};
@@ -2006,6 +2008,7 @@
 	// popular enough to be bundled in a third party lib, but not be part of
 	// an AMD load request. Those cases could generate an error when an
 	// anonymous define() is called outside of a loader request.
+	//兼容AMD规范的模块化工具，比如RequireJS。
 	if (typeof define == 'function' && define.amd) {
 		define('underscore', [], function () {
 			return _;

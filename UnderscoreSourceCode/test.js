@@ -148,7 +148,7 @@ const _ = require('./underscore.1.8.3.js');
 // console.log(a([], (x) => {
 //     return x > 1;
 // }, 1, 2, 3, 0));
-<<<<<<< HEAD
+// <<<<<<< HEAD
 
 
 // function A(name){
@@ -158,30 +158,57 @@ const _ = require('./underscore.1.8.3.js');
 // console.log(new _A('zdm'));
 // console.log(new A('zdm'));
 
-var _bind = function(func, context) {
-    var bound = function() {
-        if(this instanceof bound) {
-            var obj = new Object();
-            obj.prototype = func.prototype;
-            obj.prototype.constructor = func;
-            var res = func.call(obj);
-            if(typeof res == 'function' || typeof res == 'object' && !!res)
-                return res;
-            else
-                return obj
+// var _bind = function(func, context) {
+//     var bound = function() {
+//         if(this instanceof bound) {
+//             var obj = new Object();
+//             obj.prototype = func.prototype;
+//             obj.prototype.constructor = func;
+//             var res = func.call(obj);
+//             if(typeof res == 'function' || typeof res == 'object' && !!res)
+//                 return res;
+//             else
+//                 return obj
+//         }
+//         else {
+//             return func.call(context);
+//         }
+//     };
+//     return bound; 
+// }
+
+// var test = {};
+// var B = _bind(function() {
+//     this.name = 'B';
+// }, test);
+// var b = B();
+// var bb = new B();
+// console.log(test);
+// console.log(bb);
+
+
+var flatten = function(array, result) {
+    var result = result || [];
+    var length = array.length;
+    var toString = Object.prototype.toString;
+    var type = toString.call(array);
+    if(type !== '[object Array]')
+        throw new TypeError('The parameter you passed is not a array');
+    else {
+        for(var i = 0; i < length; i++) {
+            if(toString.call(array[i]) !== '[object Array]') {
+                result.push(array[i]);
+            }
+            else {
+                arguments.callee(array[i], result);
+            }
         }
-        else {
-            return func.call(context);
-        }
-    };
-    return bound; 
+    }
+    return result;
 }
 
-var test = {};
-var B = _bind(function() {
-    this.name = 'B';
-}, test);
-var b = B();
-var bb = new B();
-console.log(test);
-console.log(bb);
+var arr1 = [1,2,3];
+var arr2 = [1,2,[1,2,[1,[1,2,3],2,3]]];
+var arr3 = [1,2,[3]]
+// console.log(flatten(arr1));
+console.log(flatten(arr3));
