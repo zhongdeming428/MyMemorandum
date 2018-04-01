@@ -239,37 +239,70 @@ const _ = require('./underscore.1.8.3.js');
 //     return [...set];
 // }
 
-var uniq = function(array, isSorted, func) {
-    var result = [];
-    var length = array.length;
+// var uniq = function(array, isSorted, func) {
+//     var result = [];
+//     var length = array.length;
+//     var i;
+//     var seen = [];
+//     if(isSorted && !func) {
+//         for(i = 0; i< length; i++) {
+//             if(array[i] == seen) continue;
+//             else {
+//                 result.push(array[i]);
+//                 seen = array[i];
+//             }
+//         }
+//     }
+//     else if(func){
+//         for(i = 0; i < length; i++) {
+//             if(seen.indexOf(func(array[i])) < 0) {
+//                 seen.push(func(array[i]));
+//                 result.push(array[i]);
+//             }
+//         }
+//     }
+//     else{
+//         for(i = 0; i < length; i++) {
+//             if(result.indexOf(array[i]) < 0) {
+//                 result.push(array[i]);
+//             }
+//         }
+//     }
+//     return result;
+// };
+// console.log(uniq([1,1,2,2,3,3,3,4], true));
+// var objArr = [{id: 'a'}, {id: 'a'}, {id: 'b'}];
+//var persons = [{name: 'dm', age: 22}, {name: 'dm', age: 23}, {name: 'dm', age: 22}];
+
+
+// var union = function() {
+//     var arrays = arguments;
+//     var length = arguments.length;
+//     var result = [];
+//     var i;
+//     for(i = 0; i < length; i++) {
+//         var arr = arrays[i];
+//         var arrLength = arrays[i].length;
+//         for(var j = 0; j < arrLength; j++) {
+//             if(result.indexOf(arr[j]) < 0) {
+//                 result.push(arr[j]);
+//             }
+//         }
+//     }
+//     return result;
+// }
+
+// console.log(union([1,1,2], [2,3], [1,3,4]));
+
+var difference = function(arr1, arr2) {
+    var length = arr1.length;
     var i;
-    var seen = [];
-    if(isSorted && !func) {
-        for(i = 0; i< length; i++) {
-            if(array[i] == seen) continue;
-            else {
-                result.push(array[i]);
-                seen = array[i];
-            }
-        }
-    }
-    else if(func){
-        for(i = 0; i < length; i++) {
-            if(seen.indexOf(func(array[i])) < 0) {
-                seen.push(func(array[i]));
-                result.push(array[i]);
-            }
-        }
-    }
-    else{
-        for(i = 0; i < length; i++) {
-            if(result.indexOf(array[i]) < 0) {
-                result.push(array[i]);
-            }
+    var result = [];
+    for(i = 0; i < length; i++) {
+        if(arr2.indexOf(arr1[i]) < 0) {
+            result.push(arr1[i]);
         }
     }
     return result;
-};
-console.log(uniq([1,1,2,2,3,3,3,4], true));
-// var objArr = [{id: 'a'}, {id: 'a'}, {id: 'b'}];
-//var persons = [{name: 'dm', age: 22}, {name: 'dm', age: 23}, {name: 'dm', age: 22}];
+}
+console.log(difference([1,1,1], [1,2]));

@@ -752,6 +752,7 @@
 
 	// Produce an array that contains the union: each distinct element from all of
 	// the passed-in arrays.
+	//数组求并集函数。
 	_.union = restArgs(function (arrays) {
 		return _.uniq(flatten(arrays, true, true));
 	});
@@ -784,8 +785,12 @@
 
 	// Take the difference between one array and a number of other arrays.
 	// Only the elements present in just the first array will remain.
+	//数组求差集函数。
+	//通过restArgs函数把第二个数组开始的所有参数数组合并到一个数组。
 	_.difference = restArgs(function (array, rest) {
+		//使用flatten展开rest数组。
 		rest = flatten(rest, true, true);
+		//使用filter函数过滤array数组达到求差集的目的，判断条件就是value是否属于rest。
 		return _.filter(array, function (value) {
 			return !_.contains(rest, value);
 		});
