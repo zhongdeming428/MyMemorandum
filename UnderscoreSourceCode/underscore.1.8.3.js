@@ -744,16 +744,25 @@
 
 	// Produce an array that contains every item shared between all the
 	// passed-in arrays.
+	//获取传入的多个数组的交集，之所以只有一个形参，是因为该函数使用第一个数组参数作为基准。
 	_.intersection = function (array) {
+		//将要返回的结果数组。
 		var result = [];
+		//传入数组的个数。
 		var argsLength = arguments.length;
+		//遍历第一个数组参数。
 		for (var i = 0, length = getLength(array); i < length; i++) {
+			//当前项。
 			var item = array[i];
+			//如果结果数组中已有该项，那么直接跳过当前循环，进入下一轮循环中。
 			if (_.contains(result, item)) continue;
 			var j;
+			//从第二个参数开始，遍历每一个参数。
 			for (j = 1; j < argsLength; j++) {
+				//一旦有一个参数数组不包含item，就退出循环。
 				if (!_.contains(arguments[j], item)) break;
 			}
+			//如果所有参数数组都包含item项，就把item放入result。
 			if (j === argsLength) result.push(item);
 		}
 		return result;
