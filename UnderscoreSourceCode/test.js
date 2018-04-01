@@ -213,21 +213,63 @@ const _ = require('./underscore.1.8.3.js');
 // // console.log(flatten(arr1));
 // console.log(flatten(arr3));
 
-var intersection = function(arr1, arr2) {
-    var length = arr1.length;
+// var intersection = function(arr1, arr2) {
+//     var length = arr1.length;
+//     var result = [];
+//     var i;
+//     for(i = 0; i < length; i++) {
+//         if(result.indexOf(arr1[i]) >= 0) 
+//             continue;
+//         else {
+//             if(arr2.indexOf(arr1[i]) >= 0)
+//                 result.push(arr1[i]);
+//         }
+//     }
+//     return result;
+// }
+
+// var arr1 = [1,2,3,5];
+// var arr2 = [4,5,6,3];
+// console.log(intersection(arr1, arr2));
+
+// _.uniq([1,1,2], true);
+
+// var uniq = function(array) {
+//     var set = new Set(array);
+//     return [...set];
+// }
+
+var uniq = function(array, isSorted, func) {
     var result = [];
+    var length = array.length;
     var i;
-    for(i = 0; i < length; i++) {
-        if(result.indexOf(arr1[i]) >= 0) 
-            continue;
-        else {
-            if(arr2.indexOf(arr1[i]) >= 0)
-                result.push(arr1[i]);
+    var seen = [];
+    if(isSorted && !func) {
+        for(i = 0; i< length; i++) {
+            if(array[i] == seen) continue;
+            else {
+                result.push(array[i]);
+                seen = array[i];
+            }
+        }
+    }
+    else if(func){
+        for(i = 0; i < length; i++) {
+            if(seen.indexOf(func(array[i])) < 0) {
+                seen.push(func(array[i]));
+                result.push(array[i]);
+            }
+        }
+    }
+    else{
+        for(i = 0; i < length; i++) {
+            if(result.indexOf(array[i]) < 0) {
+                result.push(array[i]);
+            }
         }
     }
     return result;
-}
-
-var arr1 = [1,2,3,5];
-var arr2 = [4,5,6,3];
-console.log(intersection(arr1, arr2));
+};
+console.log(uniq([1,1,2,2,3,3,3,4], true));
+// var objArr = [{id: 'a'}, {id: 'a'}, {id: 'b'}];
+//var persons = [{name: 'dm', age: 22}, {name: 'dm', age: 23}, {name: 'dm', age: 22}];

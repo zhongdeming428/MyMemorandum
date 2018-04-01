@@ -709,27 +709,41 @@
 	// is not a one-to-one function, so providing an iteratee will disable
 	// the faster algorithm.
 	// Aliased as `unique`.
+	//数组去重函数，使得数组中的每一项都是独一无二的。
 	_.uniq = _.unique = function (array, isSorted, iteratee, context) {
+		//如果没有传递isSorted参数（即传递值不是Boolean类型），那么默认为false，其余参数重新赋值。
 		if (!_.isBoolean(isSorted)) {
 			context = iteratee;
 			iteratee = isSorted;
 			isSorted = false;
 		}
+		//如果传递了iteratee，那么使用cb方法包装（确保返回一个函数），然后重新赋值。
 		if (iteratee != null) iteratee = cb(iteratee, context);
+		//保存结果。
 		var result = [];
+		//用于存放array的值便于下一次比较，或者用于存储computed值。
 		var seen = [];
+		//遍历array数组。
 		for (var i = 0, length = getLength(array); i < length; i++) {
+			//value表示当前项，computed表示要比较的项（有iteratee时是iteratee的返回值，无iteratee时是value自身）。
 			var value = array[i],
 				computed = iteratee ? iteratee(value, i, array) : value;
 			if (isSorted && !iteratee) {
+				//如果数组是有序的，并且没有传递iteratee，则依次比较相邻的两项是否相等。
+				//！0===true，其余皆为false。
 				if (!i || seen !== computed) result.push(value);
+				//seen存放当前的项，以便于下一次比较。
 				seen = computed;
 			} else if (iteratee) {
+				//如果传递了iteratee，那么seen就用于存放computed值，便于比较。
+				//之所以不直接使用result存放computed值是因为computed只用于比较，result存放的值必须是原来数组中的值。
 				if (!_.contains(seen, computed)) {
 					seen.push(computed);
 					result.push(value);
 				}
 			} else if (!_.contains(result, value)) {
+				//isSorted为false并且iteratee为undefined。
+				//可以理解为参数数组中是乱序数字，直接比较就好了。
 				result.push(value);
 			}
 		}
