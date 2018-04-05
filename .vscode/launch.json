@@ -7,6 +7,18 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Ubuntu Run Test",
+            "program": "${workspaceFolder}/UnderscoreSourceCode/test.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Ubuntu Run Underscore",
+            "program": "${workspaceFolder}/UnderscoreSourceCode/underscore.1.8.3.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Run Test",
             "program": "${workspaceFolder}/UnderscoreSourceCode\\test.js"
         },
