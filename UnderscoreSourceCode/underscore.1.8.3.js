@@ -661,6 +661,9 @@
 	};
 
 	// Trim out all falsy values from an array.
+	// 该函数用于去掉数组中所有的false值，包括null、undefined、0、‘’、NaN等等。
+	// 使用_.filter方法，传入Boolean函数作为判断函数，如果能够通过Boolean强制转换为bool值true，那么就保存到数组中。
+	// 处理方法十分巧妙。
 	_.compact = function (array) {
 		return _.filter(array, Boolean);
 	};
@@ -699,6 +702,8 @@
 	};
 
 	// Return a version of the array that does not contain the specified value(s).
+	// 去除数组中的指定值，通过restArgs将第二个参数开始的所有参数放到一个数组中去作为第二个参数。
+	// 再利用_.difference函数求差集，返回的数组即为所求。
 	_.without = restArgs(function (array, otherArrays) {
 		return _.difference(array, otherArrays);
 	});
@@ -1983,11 +1988,17 @@
 
 	// Add your own custom functions to the Underscore object.
 	_.mixin = function (obj) {
+		// _.functions函数用于返回一个排序后的数组，包含所有的obj中的函数名。
 		_.each(_.functions(obj), function (name) {
+			// 先为_对象赋值。
 			var func = _[name] = obj[name];
+			// 为_的原型添加函数，以增加_(obj).mixin形式的函数调用方法。
 			_.prototype[name] = function () {
+				// this._wrapped作为第一个参数传递，其他用户传递的参数放在后面。
 				var args = [this._wrapped];
 				push.apply(args, arguments);
+				// 使用chainResult对运算结果进行链式调用处理，如果是链式调用就返回处理后的结果，
+				// 如果不是就直接返回运算后的结果。
 				return chainResult(this, func.apply(_, args));
 			};
 		});

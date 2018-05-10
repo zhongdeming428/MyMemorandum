@@ -294,15 +294,37 @@ const _ = require('./underscore.1.8.3.js');
 
 // console.log(union([1,1,2], [2,3], [1,3,4]));
 
-var difference = function(arr1, arr2) {
-    var length = arr1.length;
-    var i;
-    var result = [];
-    for(i = 0; i < length; i++) {
-        if(arr2.indexOf(arr1[i]) < 0) {
-            result.push(arr1[i]);
-        }
-    }
-    return result;
-}
-console.log(difference([1,1,1], [1,2]));
+// var difference = function(arr1, arr2) {
+//     var length = arr1.length;
+//     var i;
+//     var result = [];
+//     for(i = 0; i < length; i++) {
+//         if(arr2.indexOf(arr1[i]) < 0) {
+//             result.push(arr1[i]);
+//         }
+//     }
+//     return result;
+// }
+// console.log(difference([1,1,1], [1,2]));
+
+// function __(obj) {
+//     if(obj.wrapped != void 0) {
+//         return obj;
+//     }
+//     if(!(this instanceof __)) {
+//         return new __(obj);
+//     }
+//     this.wrapped = obj;
+// }
+
+// __.toString = function(obj) {
+//     return obj.name;
+// };
+
+// __.prototype.toString = function(obj) {
+//     return obj.wrapped.name
+// };
+
+// const tmp = __({name: 'none'});
+// const name = __.toString({name: 'none'});
+// console.log(tmp);
