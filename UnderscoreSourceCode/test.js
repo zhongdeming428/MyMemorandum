@@ -328,3 +328,23 @@ const _ = require('./underscore.1.8.3.js');
 // const tmp = __({name: 'none'});
 // const name = __.toString({name: 'none'});
 // console.log(tmp);
+
+// (function () {
+//     var x = function() {
+//         console.log('x');
+//     };
+//     x.name = 'x';
+//     global.x = x;
+// }())
+// console.log(x);
+
+const a = 1 && 2 && 3 || 2 && 3;
+// a === 3
+const b = 1 && false && 2 || 2 && 3;
+// b === 3
+const c = 1 && false && 2 || false && 2
+// c === false
+const d = 1 && false && 2 || 0 && 2
+// d === 0
+const e = 1 && false && 2 || 1 && 2
+// e === 2
