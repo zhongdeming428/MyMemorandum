@@ -1878,18 +1878,23 @@
 	// By default, Underscore uses ERB-style template delimiters, change the
 	// following template settings to use alternative delimiters.
 	_.templateSettings = {
+		// 执行JavaScript语句，并将结果插入。
 		evaluate: /<%([\s\S]+?)%>/g,
+		// 插入变量的值。
 		interpolate: /<%=([\s\S]+?)%>/g,
+		// 插入变量的值，并进行HTML转义。
 		escape: /<%-([\s\S]+?)%>/g
 	};
 
 	// When customizing `templateSettings`, if you don't want to define an
 	// interpolation, evaluation or escaping regex, we need one that is
 	// guaranteed not to match.
+	// 一个不可能有匹配项的正则表达式。
 	var noMatch = /(.)^/;
 
 	// Certain characters need to be escaped so that they can be put into a
 	// string literal.
+	// 类似一个字典，将需要转义的字符和其对应转义后的字符对应起来。
 	var escapes = {
 		"'": "'",
 		'\\': '\\',
@@ -1899,8 +1904,10 @@
 		'\u2029': 'u2029'
 	};
 
+	// 匹配需要转义字符的正则表达式。
 	var escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
 
+	// 返回字符对应的转义后的字符。
 	var escapeChar = function (match) {
 		return '\\' + escapes[match];
 	};
@@ -1910,10 +1917,13 @@
 	// and correctly escapes quotes within interpolated code.
 	// NB: `oldSettings` only exists for backwards compatibility.
 	_.template = function (text, settings, oldSettings) {
+		// 如果第二个参数为null或undefined。。等，那么使用oldSettings作为settings。
 		if (!settings && oldSettings) settings = oldSettings;
+		// 如果三个参数齐整，那么使用整合后的对象作为settings。
 		settings = _.defaults({}, settings, _.templateSettings);
 
 		// Combine delimiters into one regular expression via alternation.
+		// 匹配占位符的正则表达式。
 		var matcher = RegExp([
 			(settings.escape || noMatch).source,
 			(settings.interpolate || noMatch).source,

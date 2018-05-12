@@ -81,7 +81,7 @@ _变量可以当做构造器构造一个Underscore对象，这个对象是标准
 	var root = typeof self == 'object' && self.self === self && self || typeof global == 'object' && global.global === global && global || this || {};
     root._ = _;
 
-注释写在了代码中，如果既不是浏览器环境也不是Node环境的话，就获取值为this，如果this仍然为空，就赋值给一个空的对象。这里我不太明白赋值给空对象有什么意义，这样的话外部还是无法访问到这个对象的，如果有知道的童鞋欢迎在评论中告诉我，大家一起学习！
+注释写在了代码中，如果既不是浏览器环境也不是Node环境的话，就获取值为this，通过this获取全局作用域，如果this仍然为空，就赋值给一个空的对象。感谢大神[@冴羽](https://github.com/mqyqingfeng)的指教，赋值给空对象的作用是防止在开发微信小程序时报错，因为在微信小程序这种特殊环境下，window和global都是undefined，并且强制开启了strict模式,这时候this也是undefined（严格模式下禁止this指向全局变量），所以指定一个空对象给root，防止报错，具体参考：[\`this\` is undefined in strict mode](https://github.com/jashkenas/underscore/pull/2641)。
 
 这里值得学习的地方还有作者关于赋值的写法，十分简洁，尝试了一下，对于下面的写法：
 

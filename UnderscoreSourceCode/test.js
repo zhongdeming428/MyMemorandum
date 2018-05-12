@@ -348,3 +348,12 @@ const _ = require('./underscore.1.8.3.js');
 // // d === 0
 // const e = 1 && false && 2 || 1 && 2
 // // e === 2
+
+const str = 'myzdmnameiszdm'.replace(/(zdm)|(name)/g, function() {
+    console.log(arguments);
+    return '钟德鸣'
+});
+console.log(str);
+
+// var compiled = _.template("hello: <%- name %>");
+// compiled({name: 'moe'});
