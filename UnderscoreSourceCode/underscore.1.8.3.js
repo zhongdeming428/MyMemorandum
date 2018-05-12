@@ -1933,24 +1933,35 @@
 		// Compile the template source, escaping string literals appropriately.
 		var index = 0;
 		var source = "__p+='";
+		// function回调作为string.replace的第二个参数会传递至少三个参数，如果有多余捕获的话，也会被作为参数依次传入。
+		// string.replace只会返回替换之后的字符串，但是不会对原字符串进行修改，下面的操作实际上没有修改text，只是借用string.replace的回调函数完成新函数的构建。
 		text.replace(matcher, function (match, escape, interpolate, evaluate, offset) {
+			// 截取没有占位符的字符片段，并且转义其中需要转义的字符。
 			source += text.slice(index, offset).replace(escapeRegExp, escapeChar);
+			// 跳过占位符，为下一次截取做准备。
 			index = offset + match.length;
 
+			// 转义符的位置使用匹配到的占位符中的变量的值替代，构造一个函数的内容。
 			if (escape) {
+				// 不为空时将转义后的字符串附加到source。
 				source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
 			} else if (interpolate) {
 				source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
 			} else if (evaluate) {
+				// 由于是直接执行语句，所以直接把evaluate字符串添加到构造函数的字符串中去就好。
 				source += "';\n" + evaluate + "\n__p+='";
 			}
 
 			// Adobe VMs need the match returned to produce the correct offset.
+			// 正常来说没有修改原字符串text，所以不返回值没有关系，但是这里返回了原匹配项，
+			// 根据注释的意思，可能是为了防止特殊环境下能够有一个正常的offset偏移量。
 			return match;
 		});
 		source += "';\n";
+		// source拼凑出了一个函数定义的所有内容，为后面使用Function构造函数做准备。
 
 		// If a variable is not specified, place data values in local scope.
+		// 指定作用域，以取得传入对象数据的所有属性。
 		if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
 
 		source = "var __t,__p='',__j=Array.prototype.join," +
@@ -1959,6 +1970,8 @@
 
 		var render;
 		try {
+			// 通过new Function()形式构造函数对象。
+			// new Function(param1, ..., paramN, funcBody)
 			render = new Function(settings.variable || 'obj', '_', source);
 		} catch (e) {
 			e.source = source;
@@ -1971,6 +1984,7 @@
 
 		// Provide the compiled source as a convenience for precompilation.
 		var argument = settings.variable || 'obj';
+		// 为template函数添加source属性以便于进行预编译，以便于发现不可重现的错误。
 		template.source = 'function(' + argument + '){\n' + source + '}';
 
 		return template;
