@@ -1,5 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const config = {
     mode: 'development',
@@ -19,9 +21,15 @@ const config = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
+        }),
+        new WorkboxPlugin.GenerateSW({
+          // 这些选项帮助 ServiceWorkers 快速启用
+          // 不允许遗留任何“旧的” ServiceWorkers
+          clientsClaim: true,
+          skipWaiting: true
         })
     ],
-    devtool: 'source-map',
+    devtool: 'line-source-map',
     devServer: {
         contentBase: path.join(__dirname, "dist"),
         compress: true,

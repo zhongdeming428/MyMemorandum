@@ -1,4 +1,12 @@
-import global from './global';
-import './index.css'
+import './index.css';
+import './App.js';
 
-console.log(global.name);
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').then(registration => {
+            console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+        });
+    });
+}
