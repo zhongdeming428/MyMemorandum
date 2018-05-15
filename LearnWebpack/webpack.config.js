@@ -23,10 +23,10 @@ const config = {
             template: './src/index.html'
         }),
         new WorkboxPlugin.GenerateSW({
-          // 这些选项帮助 ServiceWorkers 快速启用
-          // 不允许遗留任何“旧的” ServiceWorkers
-          clientsClaim: true,
-          skipWaiting: true
+            // 这些选项帮助 ServiceWorkers 快速启用
+            // 不允许遗留任何“旧的” ServiceWorkers
+            clientsClaim: true,
+            skipWaiting: true
         })
     ],
     devtool: 'line-source-map',

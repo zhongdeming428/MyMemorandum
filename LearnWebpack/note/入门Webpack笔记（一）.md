@@ -521,3 +521,55 @@ TreeShaking表示移除JavaScript文件中的未使用到的代码，webpack 4�
 
 ## 八、通过webpack构建PWA应用
 
+渐进式网络应用程序(Progressive Web Application - PWA)，是一种可以提供类似于原生应用程序(native app)体验的网络应用程序(web app)，在离线(offline)时应用程序能够继续运行功能，这是通过 Service Workers 技术来实现的。PWA是最近几年比较火的概念，它的核心是由service worker技术实现的在客户浏览器与服务器之间搭建的一个代理服务器，在网络畅通时，客户浏览器会通过service worker访问服务器，并且缓存注册的文件；在网络断开时，浏览器会访问service worker这个代理服务器，使得在网络断开的情况下，页面还是能够访问，实现了类似原生应用的网站开发。`create-react-app`已经实现了PWA开发的配置。
+
+下面介绍如何通过webpack快速开发PWA。
+
+* （1）安装插件`workbox-webpack-plugin`：
+
+        npm install workbox-webpack-plugin --save-dev
+    
+* （2）在配置文件中引入该插件：
+
+        // webpack.config.js
+        const WorkboxPlugin = require('workbox-webpack-plugin');
+        module.exports = {
+            plugins: [
+                new WorkboxPlugin.GenerateSW({
+                    clientsClaim: true,
+                    skipWaiting: true
+                })
+            ]
+        };
+
+* （3）使用webpack进行编译，打包出service-worker.js
+* （4）在入口文件底部注册service worker：
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+
+* （5）打开页面，进行调试：
+
+        npm run start
+
+* （6）打开浏览器调试工具，查看控制台的输出，如果输出“SW registered: ... ...”，表示注册service worker成功，接下来可以断开网络，或者关闭服务器，再次刷新，可以看到页面仍然可以显示。
+
+## 九、参考文章
+
+* [webpack官方中文文档](https://webpack.docschina.org/)
+
+## 十、总结
+
+webpack确实是一个功能强大的模块打包工具，丰富的loader和plugin使得其功能多而强。学习webpack使得我们可以自定义自己的开发环境，无需依赖`create-react-app`和`Vue-Cli`这类脚手架，也可以针对不同的需求对代码进行不同方案的处理。这篇笔记还只是一篇入门的笔记，如果要真正的构建较为复杂的开发环境和生产环境，还需要了解许多的loader和plugin，好在webpack官网提供了所有的说明，可以给用户提供使用指南：
+
+* [webpack loaders](loaders)
+* [webpack plugins](https://webpack.js.org/plugins/)
+
+阅读脚手架的源码也有助于学习webpack，今后应该还有进行这方面的学习，但是答辩即将到来，不知道毕业之前还有没有机会^_^。
