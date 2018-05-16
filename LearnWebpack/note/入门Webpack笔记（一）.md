@@ -238,7 +238,7 @@ webpack提供Node API，方便我们在Node脚本中使用webpack。
         }
     });
 
-## 动态生成index.html和bundle.js
+## 四、动态生成index.html和bundle.js
 
 动态生成是啥？动态生成就是指在打包后的模块名称内插入hash值，使得每一次生成的模块具有不同的名称，而index.html之所以要动态生成是因为每次打包生成的模块名称不同，所以在HTML文件内引用时也要更改script标签，这样才能保证每次都能引用到正确的JavaScript文件。
 
@@ -281,7 +281,7 @@ webpack提供Node API，方便我们在Node脚本中使用webpack。
 
 在上面的代码中还可以看到`HtmlWebpackPlugin`插件的构造函数还可以传递一个配置对象作为参数。比较有用的配置属性有`title`（指定HTML中title标签的内容，及网页标题）、`template`（指定模板HTML文件）等等，其他更多具体参考信息请访问：[Html-Webpack-Plugin](https://github.com/jantimon/html-webpack-plugin#options)
 
-## 四、清理/dist文件夹
+## 五、清理/dist文件夹
 
 由于每次生成的JavaScript文件都不同名，所以新的文件不会覆盖旧的文件，而旧的文件一只会存在于`/dist`文件夹中，随着编译次数的增加，这个文件夹会越来越膨胀，所以应该想办法每次生成新的bundle文件之前清理`/dist`文件夹，以确保文件夹的干净整洁，有以下两个较好的处理办法：
 
@@ -340,7 +340,7 @@ webpack提供Node API，方便我们在Node脚本中使用webpack。
 
 之后再次打包，你会发现之前的打包文件全部被删除了。
 
-## 五、搭建开发环境
+## 六、搭建开发环境
 
 开发环境与生产环境存在许多的差异，生产环境更讲究生产效率，因此代码必须压缩、精简，必须去除一些生产环境并不需要用到的调试工具，只需要提高应用的效率和性能即可。开发环境更讲究调试、测试，为了方便开发，我们需要搭建一个合适的开发环境。
 
@@ -474,7 +474,7 @@ webpack提供Node API，方便我们在Node脚本中使用webpack。
 
 热模块替换比较难以掌控，容易报错，推荐在不同的开发配置下使用不同的loader简化HMR过程。具体参考：[其他代码和框架](https://webpack.docschina.org/guides/hot-module-replacement/#其他代码和框架)
 
-## 六、搭建生产环境
+## 七、搭建生产环境
 
 生产环境要求代码精简、性能优异，而开发要求开发快速、测试方便，代码不要求简洁，所以两种环境下webpack打包的目的也不相同，所以最好将两种环境下的配置文件分开来。对于分开的配置文件，在使用webpack时还是要对其中的配置信息进行整合，`webpack-merge`是一个不错的整合工具（Vue-Cli也有使用到）。
 
@@ -504,7 +504,7 @@ webpack提供Node API，方便我们在Node脚本中使用webpack。
     
 此外，建议设置mode属性，因为生产环境下会自动开启代码压缩，免去了配置的麻烦。
 
-## 七、性能优化
+## 八、性能优化
 
 ### TreeShaking
 
@@ -519,7 +519,7 @@ TreeShaking表示移除JavaScript文件中的未使用到的代码，webpack 4�
 * 保持最新版本。
 * 减少项目文件数。
 
-## 八、通过webpack构建PWA应用
+## 九、通过webpack构建PWA应用
 
 渐进式网络应用程序(Progressive Web Application - PWA)，是一种可以提供类似于原生应用程序(native app)体验的网络应用程序(web app)，在离线(offline)时应用程序能够继续运行功能，这是通过 Service Workers 技术来实现的。PWA是最近几年比较火的概念，它的核心是由service worker技术实现的在客户浏览器与服务器之间搭建的一个代理服务器，在网络畅通时，客户浏览器会通过service worker访问服务器，并且缓存注册的文件；在网络断开时，浏览器会访问service worker这个代理服务器，使得在网络断开的情况下，页面还是能够访问，实现了类似原生应用的网站开发。`create-react-app`已经实现了PWA开发的配置。
 
@@ -561,11 +561,11 @@ TreeShaking表示移除JavaScript文件中的未使用到的代码，webpack 4�
 
 * （6）打开浏览器调试工具，查看控制台的输出，如果输出“SW registered: ... ...”，表示注册service worker成功，接下来可以断开网络，或者关闭服务器，再次刷新，可以看到页面仍然可以显示。
 
-## 九、参考文章
+## 十、参考文章
 
 * [webpack官方中文文档](https://webpack.docschina.org/)
 
-## 十、总结
+## 十一、总结
 
 webpack确实是一个功能强大的模块打包工具，丰富的loader和plugin使得其功能多而强。学习webpack使得我们可以自定义自己的开发环境，无需依赖`create-react-app`和`Vue-Cli`这类脚手架，也可以针对不同的需求对代码进行不同方案的处理。这篇笔记还只是一篇入门的笔记，如果要真正的构建较为复杂的开发环境和生产环境，还需要了解许多的loader和plugin，好在webpack官网提供了所有的说明，可以给用户提供使用指南：
 
