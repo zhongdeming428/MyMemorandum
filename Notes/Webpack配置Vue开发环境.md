@@ -1,38 +1,39 @@
-# »ùÓÚWebpack´î½¨Vue¿ª·¢»·¾³
+# åŸºäºWebpackæ­å»ºVueå¼€å‘ç¯å¢ƒ
 
-## Ò»¡¢³õÊ¼»¯ÏîÄ¿ÎÄ¼ş¼Ğ
+## ä¸€ã€åˆå§‹åŒ–é¡¹ç›®æ–‡ä»¶å¤¹
 
-ĞÂ½¨Ò»¸öÎÄ¼ş¼Ğ£¨Â·¾¶ÓëÃüÃûËæÒâ£©£¬È»ºó´ò¿ªTerminal£¬ÇĞ»»Â·¾¶µ½¸ÃÎÄ¼ş¼Ğ£¬Í¨¹ıÒÔÏÂÃüÁî³õÊ¼»¯£º
+æ–°å»ºä¸€ä¸ªæ–‡ä»¶å¤¹ï¼ˆè·¯å¾„ä¸å‘½åéšæ„ï¼‰ï¼Œç„¶åæ‰“å¼€Terminalï¼Œåˆ‡æ¢è·¯å¾„åˆ°è¯¥æ–‡ä»¶å¤¹ï¼Œé€šè¿‡ä»¥ä¸‹å‘½ä»¤åˆå§‹åŒ–ï¼š
 
     npm init -y
 
-`-y`ÊÇ¼ò»¯µÄ³õÊ¼»¯¹ı³Ì£¬ËùÓĞ`package.json`µÄËùÓĞÊôĞÔ¶¼Ê¹ÓÃÄ¬ÈÏÖµ¡£
+`-y`æ˜¯ç®€åŒ–çš„åˆå§‹åŒ–è¿‡ç¨‹ï¼Œæ‰€æœ‰`package.json`çš„æ‰€æœ‰å±æ€§éƒ½ä½¿ç”¨é»˜è®¤å€¼ã€‚
 
-ÔÚÏîÄ¿ÎÄ¼ş¼ĞÏÂĞÂ½¨ÎÄ¼ş¼Ğ£º`/dist`¡¢`/src`¡£
+åœ¨é¡¹ç›®æ–‡ä»¶å¤¹ä¸‹æ–°å»ºæ–‡ä»¶å¤¹ï¼š`/dist`ã€`/src`ã€‚
 
-ÔÚ`/src`ÎÄ¼ş¼ĞÏÂĞÂ½¨ÎÄ¼ş£º`main.js`ºÍ`index.html`£¬`main.js`ÊÇ´ò°üµÄÈë¿ÚÎÄ¼ş¡£
+åœ¨`/src`æ–‡ä»¶å¤¹ä¸‹æ–°å»ºæ–‡ä»¶ï¼š`main.js`å’Œ`index.html`ï¼Œ`main.js`æ˜¯æ‰“åŒ…çš„å…¥å£æ–‡ä»¶ã€‚
 
-## ¶ş¡¢°²×°WebpackÓëWebpack-cli
+## äºŒã€å®‰è£…Webpackä¸Webpack-cli
 
-Í¨¹ıÒÔÏÂÃüÁî°²×°£º
+é€šè¿‡ä»¥ä¸‹å‘½ä»¤å®‰è£…ï¼š
 
     npm install -D webpack webpack-cli
 
-## Èı¡¢ÅäÖÃ×î»ù´¡µÄWebpack
+## ä¸‰ã€é…ç½®æœ€åŸºç¡€çš„Webpack
 
-Í¨¹ıÒÔÏÂÃüÁî°²×°»ù´¡Ä£¿é£º
+é€šè¿‡ä»¥ä¸‹å‘½ä»¤å®‰è£…åŸºç¡€æ¨¡å—ï¼š
 
     npm install -D style-loader css-loader webpack-merge vue-loader babel-loader babel-preset-env babel-polyfill html-webpack-plugin clean-webpack-plugin webpack-dev-server vue-template-compiler vue-style-loader
 
-ÔÚÏîÄ¿ÎÄ¼ş¼ĞµÄ¸ùÄ¿Â¼ÏÂĞÂ½¨Èı¸öÎÄ¼ş£º`webpack.dev.conf.js`¡¢`webpack.base.conf.js`ºÍ`webpack.prod.conf.js`¡£
+åœ¨é¡¹ç›®æ–‡ä»¶å¤¹çš„æ ¹ç›®å½•ä¸‹æ–°å»ºä¸‰ä¸ªæ–‡ä»¶ï¼š`webpack.dev.conf.js`ã€`webpack.base.conf.js`å’Œ`webpack.prod.conf.js`ã€‚
 
-ÄÚÈİ·Ö±ğÈçÏÂ£º
+å†…å®¹åˆ†åˆ«å¦‚ä¸‹ï¼š
 
 **webpack.base.conf.js**
 
     const path = require('path');
     const HtmlWebpackPlugin = require('html-webpack-plugin');
     const CleanWebpackPlugin = require('clean-webpack-plugin');
+    const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
     module.exports = {
         entry: './src/main.js',
@@ -44,7 +45,7 @@
             rules: [
                 {
                     test: /\.css$/,
-                    use: ['style-loader', 'css-loader']
+                    use: ['vue-style-loader', 'css-loader']
                 },
                 {
                     test: /\.js$/,
@@ -54,11 +55,17 @@
             ]
         },
         plugins: [
+            new VueLoaderPlugin(),
             new HtmlWebpackPlugin({
                 template: './src/index.html'
             }),
             new CleanWebpackPlugin(['dist'])
-        ]
+        ], 
+        resolve: { 
+            alias: { 
+                'vue': 'vue/dist/vue.js' 
+            } 
+        }
     };
 
 **webpack.dev.conf.js**
@@ -84,9 +91,9 @@
         mode: 'production'
     });
 
-## ËÄ¡¢ÅäÖÃ`npm scripts`
+## å››ã€é…ç½®`npm scripts`
 
-ĞŞ¸Ä`package.json`£¬ÔÚscriptsÊôĞÔÖĞĞÂ¼ÓÈëÒÔÏÂÃüÁî£º
+ä¿®æ”¹`package.json`ï¼Œåœ¨scriptså±æ€§ä¸­æ–°åŠ å…¥ä»¥ä¸‹å‘½ä»¤ï¼š
 
     // package.json
     {
@@ -96,9 +103,9 @@
         }
     }
 
-ÏÖÔÚ¿ÉÒÔ²âÊÔwebpackµÄ»ù´¡ÅäÖÃ£º
+ç°åœ¨å¯ä»¥æµ‹è¯•webpackçš„åŸºç¡€é…ç½®ï¼š
 
-ĞŞ¸ÄÒ³ÃæÎÄ¼ş£¬ÄÚÈİ·Ö±ğÈçÏÂ£º
+ä¿®æ”¹é¡µé¢æ–‡ä»¶ï¼Œå†…å®¹åˆ†åˆ«å¦‚ä¸‹ï¼š
 
 **index.html**
 
@@ -118,19 +125,20 @@
 
     console.log('Yes!');
 
-ÊäÈëÃüÁî`npm run start`ºÍ`npm run build`£¬·Ö±ğ²é¿´Ğ§¹û¡£
+è¾“å…¥å‘½ä»¤`npm run start`å’Œ`npm run build`ï¼Œåˆ†åˆ«æŸ¥çœ‹æ•ˆæœã€‚
 
-## Îå¡¢ÅäÖÃVue¿ª·¢»·¾³
+## äº”ã€é…ç½®Vueå¼€å‘ç¯å¢ƒ
 
-Í¨¹ıÒÔÏÂÃüÁî°²×°VueÄ£¿é£º
+é€šè¿‡ä»¥ä¸‹å‘½ä»¤å®‰è£…Vueæ¨¡å—ï¼š
 
     npm install --save vue
 
-ÔÚ`webpack.base.conf.js`µÄ`module.rules`ÊôĞÔÏÂ£¬ÔÚ**jsºÍcssµÄ¹æÔòÖ®Ç°**ĞÂ¼ÓÒ»Ìõ¹æÔò£¬ĞŞ¸ÄÖ®ºó£¬`webpack.base.conf.js`ÄÚÈİÈçÏÂ£º
+åœ¨`webpack.base.conf.js`çš„`module.rules`å±æ€§ä¸‹ï¼Œåœ¨**jså’Œcssçš„è§„åˆ™ä¹‹å‰**æ–°åŠ ä¸€æ¡è§„åˆ™ï¼Œä¿®æ”¹ä¹‹åï¼Œ`webpack.base.conf.js`å†…å®¹å¦‚ä¸‹ï¼š
 
     const path = require('path');
     const HtmlWebpackPlugin = require('html-webpack-plugin');
     const CleanWebpackPlugin = require('clean-webpack-plugin');
+    const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
     module.exports = {
         entry: './src/main.js',
@@ -146,7 +154,7 @@
                 },
                 {
                     test: /\.css$/,
-                    use: ['style-loader', 'css-loader']
+                    use: ['vue-style-loader', 'css-loader']
                 },
                 {
                     test: /\.js$/,
@@ -156,10 +164,53 @@
             ]
         },
         plugins: [
+            new VueLoaderPlugin(),
             new HtmlWebpackPlugin({
                 template: './src/index.html'
             }),
             new CleanWebpackPlugin(['dist'])
-        ]
+        ], 
+        resolve: { 
+            alias: { 
+                'vue': 'vue/dist/vue.js' 
+            } 
+        }
     };
 
+æ–°å»ºæ–‡ä»¶`App.vueï¼Œå†…å®¹å¦‚ä¸‹ï¼š
+
+    <template>
+    <div id='app'>
+        <h1>Hello Vue & Webpack!</h1>
+    </div>
+    </template>
+
+    <style scoped>
+        body {
+            background-color: blue;
+            color: white
+        }
+        h1 {
+            background-color: black
+        }
+    </style>
+
+    <script>
+        export default {
+            name: 'App'
+        }
+    </script>
+
+ä¿®æ”¹`main.js`ä¸­çš„å†…å®¹ï¼Œä¿®æ”¹ä¹‹åå¦‚ä¸‹ï¼š
+
+    import Vue from 'vue';
+    import App from './App.vue';
+
+    new Vue({
+        el: '#app',
+        components: { App }
+    });
+
+ä½¿ç”¨`npm run start`å¯åŠ¨æœåŠ¡å™¨ï¼ŒæŸ¥çœ‹ç»“æœã€‚
+
+# ç”±äºæœªè§£å†³scoped CSSåŠŸèƒ½ï¼Œè¯¥æ–‡ç« æš‚æ—¶æç½®ã€‚
