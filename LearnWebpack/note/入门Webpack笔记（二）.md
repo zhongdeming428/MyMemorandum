@@ -2,7 +2,7 @@
 
 前些天一直在学习入门Webpack，后来尝试了自己搭建一下一个简单的React开发环境，后来就在想可不可以自己写一个简单的脚手架，以免每次搭建一个简单的开发环境都需要自己一个个的配置，这样很麻烦，使用`create-react-app`的话，配置一大堆可能不会用到的功能，比较冗余，所以自己写一个超级简化的脚手架，只处理ES6代码、JSX语法和css模块，这样就满足了基本的使用。
 
-后来在开发的过程中又遇到了新的麻烦，比如使用Node的`child_process.spawn`方法调用npm命令时，会出现错误，因为在Windows环境下，实际上要调用`npm.cmd`，而非`npm`，在这里出现了问题，还有一些其他问题，后来正好看到了[@Jsonz](https://juejin.im/user/58dbb0b844d904006954ca8e)大神写的两篇文章：[探索 create-react-app 源码](https://juejin.im/post/5af452fd518825671c0e96e5)和[create-react-app 源码解析之react-scripts](https://juejin.im/post/5af98aaf518825426d2d4142)，于是也照着学习了一下`create-react-app`脚手架的源码，基本解决了一些问题，最终写出来了一个简（can）单（废）的React脚手架，当然还有许许多多的不足，但是这个学习的过程值得我记录下来。
+后来在开发的过程中又遇到了新的麻烦，比如使用Node的`child_process.spawn`方法调用npm命令时，会出现错误，因为在Windows环境下，实际上要调用`npm.cmd`，而非`npm`，在这里出现了问题，还有一些其他问题，后来正好看到了[@Jsonz](https://juejin.im/user/58dbb0b844d904006954ca8e)大神写的两篇文章：[探索 create-react-app 源码](https://juejin.im/post/5af452fd518825671c0e96e5)和[create-react-app 源码解析之react-scripts](https://juejin.im/post/5af98aaf518825426d2d4142)，于是也照着学习了一下`create-react-app`脚手架的源码，基本解决了一些问题，最终写出来了一个简（can）单（fei）的React脚手架，当然还有许许多多的不足，但是这个学习的过程值得我记录下来。
 
 这篇文章记录了以下知识：
 
@@ -14,6 +14,37 @@
 `create-react-app`是一个很成功的、功能完善的脚手架，考虑到了许多方面，比如使用`npm`或者`yarn`，比如`npm`和`Node`版本、日志的记录和打印等等诸多方面，开发环境搭建的也十分完善，除了基本的React开发之外，还考虑了图片、postcss、sass、graphQL等等模块的处理。由于能力有限，本文开发的脚手架只涵盖了基本模块的处理，不包含图片、sass……等等。
 
 脚手架的作用主要是建立一个React开发的标准目录、并且配置好webpack打包工具，使得开发过程中可以直接在标准的目录上修改，然后通过配置好的命令启动本地服务器或者打包app。所以脚手架中应该包括一个模板文件夹，里面放入应该拷贝到用户工程文件夹的所有文件或目录。在使用脚手架时，先把模板文件夹中的内容拷贝到用户工程文件夹下，然后修改`package.json`配置文件，最后安装所有模块。这就是我开发的脚手架所完成的基本工作。
+
+脚手架工程目录结构如下：
+
+    ROOT
+    │  .gitignore
+    │  .npmignore
+    │  LICENSE
+    │  package-lock.json
+    │  package.json
+    │  README.md
+    │
+    ├─dist
+    ├─package
+    │      create-react.js
+    │
+    └─templates
+        │  .babelrc
+        │  .gitignore
+        │  README.md
+        │  webpack.base.conf.js
+        │  webpack.dev.conf.js
+        │  webpack.prod.conf.js
+        │
+        ├─dist
+        └─src
+            │  index.css
+            │  index.html
+            │  index.js
+            │
+            └─components
+                    App.js
 
 根据我的[前一篇文章](https://juejin.im/post/5afc29fa6fb9a07ab379a2ae)，搭建React开发环境，最小化的标准目录结构应该如下：
 
