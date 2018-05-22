@@ -1,6 +1,7 @@
 const generateArray = require('./Global').generateArray;
 
 function selectionSort(arr) {
+    console.time('SelectionSort');
     let len = arr.length;
     let count = 0;
     arr.forEach((item, index) => {
@@ -14,7 +15,8 @@ function selectionSort(arr) {
         }
     });
     console.log(arr);
+    console.timeEnd('SelectionSort');
     return count;
 }
 
-console.log(selectionSort(generateArray(10000)));
+console.log(selectionSort(generateArray(50000)));

@@ -1,6 +1,7 @@
 const generateArray = require('./Global').generateArray;
 
 function bubbleSort(arr) {
+    console.time('BubbleSort');
     let len = arr.length;
     let count = 0;
     arr.forEach(() => {
@@ -13,6 +14,7 @@ function bubbleSort(arr) {
             count++;
         }
     });
+    console.timeEnd('BubbleSort');
     return count;
 }
 

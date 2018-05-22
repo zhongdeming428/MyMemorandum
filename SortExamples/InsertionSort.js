@@ -1,6 +1,7 @@
 const generateArray = require('./Global').generateArray;
 
 function insertionSort(arr) {
+    console.time('InsertionSort');
     let len = arr.length;
     let count = 0;
     for(let i=1; i<len; i++) {
@@ -14,7 +15,8 @@ function insertionSort(arr) {
         arr[j] = tmp;
     }
     console.log(arr);
+    console.timeEnd('InsertionSort');
     return count;
 }
 
-console.log(insertionSort(generateArray(10000)));
+console.log(insertionSort(generateArray(100000)));
