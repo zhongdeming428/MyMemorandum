@@ -7,6 +7,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Run Current File",
+            "program": "${file}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Ubuntu Run Test",
             "program": "${workspaceFolder}/UnderscoreSourceCode/test.js"
         },
