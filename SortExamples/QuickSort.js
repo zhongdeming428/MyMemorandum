@@ -38,5 +38,5 @@ function quickSort(arr) {
     }
 }
 
-// console.log(quickSort([2, 1, 4, 2, 3, 6, 9, 8]));
-console.log(quickSort(generateArray(10000)));
+console.log(quickSort([2, 1, 4, 2, 3, 6, 9, 8]));
+// console.log(quickSort(generateArray(10000)));

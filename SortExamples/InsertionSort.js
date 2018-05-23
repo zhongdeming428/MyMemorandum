@@ -19,4 +19,4 @@ function insertionSort(arr) {
     return count;
 }
 
-console.log(insertionSort(generateArray(100000)));
+console.log(insertionSort(generateArray(20000)));
