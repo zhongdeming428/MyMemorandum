@@ -31,4 +31,4 @@ function mergeSort(arr) {
     }
 }
 
-console.log(mergeSort(generateArray(100000)));
+console.log(mergeSort(generateArray(10000000)));

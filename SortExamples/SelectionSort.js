@@ -19,4 +19,4 @@ function selectionSort(arr) {
     return count;
 }
 
-console.log(selectionSort(generateArray(50000)));
+console.log(selectionSort(generateArray(20000)));

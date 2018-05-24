@@ -20,4 +20,4 @@ function bubbleSort(arr) {
 
 // The worst result for bubbleSort.
 // O(n^2).
-console.log(bubbleSort(generateArray(10000)));
+console.log(bubbleSort(generateArray(50000)));
