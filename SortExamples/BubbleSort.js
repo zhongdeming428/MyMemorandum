@@ -5,7 +5,7 @@ function bubbleSort(arr) {
     let len = arr.length;
     let count = 0;
     arr.forEach(() => {
-        for(let i=0; i<len-1; i++) {
+        for(let i=0; i<len-1-i; i++) {
             if(arr[i] > arr[i+1]) {
                 let tmp = arr[i+1];
                 arr[i] = tmp;
@@ -20,4 +20,4 @@ function bubbleSort(arr) {
 
 // The worst result for bubbleSort.
 // O(n^2).
-console.log(bubbleSort(generateArray(50000)));
+console.log(bubbleSort(generateArray(20000)));
