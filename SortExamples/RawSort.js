@@ -1,5 +1,6 @@
 const generateArray = require('./Global').generateArray;
 
+const arr = generateArray(10000);
 console.time('RawSort');
-generateArray(10000).sort((a, b) => a - b);
+arr.sort((a, b) => a - b);
 console.timeEnd('RawSort');
