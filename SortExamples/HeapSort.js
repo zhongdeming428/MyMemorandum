@@ -34,4 +34,4 @@ function heapSort(arr) {
     }
 }
 
-console.log(heapSort(generateArray(10000000)));
+console.log(heapSort(generateArray(3)));
