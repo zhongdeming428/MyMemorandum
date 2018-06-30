@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "python",
+            "pythonPath": "/usr/bin/python3",
+            "request": "launch",
+            "name": "Run Python",
+            "program": "${file}"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Run Current File",
