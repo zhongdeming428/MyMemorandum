@@ -1,4 +1,5 @@
 {
     "editor.fontWeight": "600",
-    "python.linting.pylintEnabled": false
+    "python.linting.pylintEnabled": false,
+    "python.pythonPath": "/usr/bin/python3"
 }
