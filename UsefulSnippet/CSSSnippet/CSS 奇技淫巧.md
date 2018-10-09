@@ -77,3 +77,29 @@ HTML 代码如下：
 效果如下：
 
 ![img](./gif/donut-loading.gif)
+
+## 二、构建一个宽高比固定的 div
+
+CSS 代码如下：
+
+    .reactive-height {
+      width: 50%;
+      background-color: aqua;
+    }
+    .reactive-height::before {
+      content: '';
+      float: left;
+      padding-top: 100%;
+    }
+    .reactive-height::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  
+HTML 代码如下：
+
+    <div class="reactive-height"></div>
+
+## 三、自定义滚动条
+
