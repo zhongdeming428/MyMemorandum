@@ -1,17 +1,17 @@
-import Observer from './Observer';
 
 const OBS = new Observer();
 OBS.add({
-  update() {
-    
+  update(newVal) {
+    document.getElementById('input').value = newVal;
+    document.getElementById('h1').innerText = newVal;
   }
 });
 
 function watch(data) {
   if (typeof data !== 'object')
-    throw new TypeError('监视对象必须是一个 Object 类型的参数！')
+    return;
   Object.keys(data).forEach(k => {
-    let value;
+    let value = '';
     if (typeof data[k] === 'object') 
       watch(data[k]);
     else {
@@ -19,6 +19,7 @@ function watch(data) {
         set(newVal) {
           value = newVal;
           watch(data[k]);
+          OBS.notify(newVal);
         },
         get() {
           return value;
@@ -26,4 +27,5 @@ function watch(data) {
       })
     }
   });
+  return data;
 }
