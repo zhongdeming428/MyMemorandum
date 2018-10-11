@@ -120,6 +120,7 @@
 
       .hover-underline-animation {
         cursor: pointer;
+        overflow: hidden;
       }
       .hover-underline-animation::after {
         content: '';
@@ -127,16 +128,14 @@
         height: 2px;
         display: block;
         background-color: #7983ff;
-        transform: scaleX(0);
-        transform-origin: left;
+        transform: translateX(100%);
         transition: transform 0.3s;
       }
       .hover-underline-animation:hover::after {
-        transform: scaleX(1);
-        transform-origin: right;
+        transform: translateX(0)
       }
       .hover-underline-animation:hover ~ .hover-underline-animation::after {
-        transform-origin: left !important;
+        transform: translateX(-100%) !important;
       }
 
       .not-selector > li {
@@ -261,8 +260,11 @@
       Hover Underline Animation
     </span>
     <span class="hover-underline-animation">
-        Hover Underline Animation
-      </span>
+      Hover Underline Animation
+    </span>
+    <span class="hover-underline-animation">
+      Hover Underline Animation
+    </span>
 
     <ul class="not-selector dn" type="none">
       <li>One</li>
