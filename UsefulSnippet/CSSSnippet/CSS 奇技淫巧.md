@@ -295,3 +295,134 @@ CSS 代码如下：
 
 ### （3）实现左入左出、右入右出的效果
 
+这一部分 HTML 代码略有不同，为了展示左入左出、右入右出的效果，需要三个元素来实现，所以 HTML 代码多了两个相同的元素：
+
+    <span class="hover-underline-animation">
+      Hover Underline Animation
+    </span>
+    <span class="hover-underline-animation">
+      Hover Underline Animation
+    </span>
+    <span class="hover-underline-animation">
+      Hover Underline Animation
+    </span>
+
+CSS 代码如下;
+
+    .hover-underline-animation {
+      cursor: pointer;
+      position: relative;
+    }
+    .hover-underline-animation::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 0%;
+      height: 2px;
+      display: block;
+      background-color: #7983ff;
+      transition: all 0.3s;
+    }
+    .hover-underline-animation:hover::after {
+      width: 100%;
+    }
+    .hover-underline-animation:hover ~ .hover-underline-animation::after {
+      right: 100% !important;
+    }
+
+效果截图如下：
+
+![img](./gif/hover-underline-animation-2.gif)
+
+## 八、:not 选择器
+
+HTML 代码如下：
+
+    <ul class="not-selector" type="none">
+      <li>One</li>
+      <li>Two</li>
+      <li>Three</li>
+      <li>Four</li>
+    </ul>
+
+CSS 代码如下：
+
+    .not-selector > li {
+      width: 20rem;
+      position: relative;
+    }
+    .not-selector > li:not(:last-child)::after {
+      content: "";
+      display: inline-block;
+      background-color: #c3c3c3;
+      height: 0.5px;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+实现效果如下：
+
+![img](./gif/not-selector.gif)
+
+## 九、滚动容器的渐变遮罩
+
+HTML 代码如下：
+
+    <div class="overflow-scroll-gradient dn">
+      <div>
+        Pellentesque habitant morbi tristique senectus et 
+        netus et malesuada fames ac turpis egestas. 
+        Vestibulum tortor quam, feugiat vitae, 
+        ultricies eget, tempor sit amet, ante. 
+        Donec eu libero sit amet quam egestas semper. 
+        Aenean ultricies mi vitae est. Mauris placerat 
+        eleifend leo. Quisque sit amet est et sapien 
+        ullamcorper pharetra. Vestibulum erat wisi, 
+        condimentum sed, commodo vitae, ornare sit amet, 
+        wisi. Aenean fermentum, elit eget tincidunt condimentum, 
+        eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. 
+        Donec non enim in turpis pulvinar facilisis. Ut felis. 
+        Praesent dapibus, neque id cursus faucibus, tortor neque 
+        egestas augue, eu vulputate magna eros eu erat. Aliquam 
+        erat volutpat. Nam dui mi, tincidunt quis, accumsan 
+        porttitor, facilisis luctus, metus
+      </div>
+    </div>
+
+CSS 代码如下：
+
+    .overflow-scroll-gradient {
+      position: relative;
+    }
+    .overflow-scroll-gradient::before {
+      content: "";
+      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5rem;
+      background: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.001))
+    }
+    .overflow-scroll-gradient::after {
+      content: "";
+      display: inline-block;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 5rem;
+      background: linear-gradient(rgba(255, 255, 255, 0.001), rgba(255, 255, 255, 1))
+    }
+    .overflow-scroll-gradient > div {
+      width: 15rem;
+      height: 25rem;
+      overflow-y: scroll;
+    }
+
+效果截图如下：
+
+![img](./gif/overflow-scroll-gradient.gif)
