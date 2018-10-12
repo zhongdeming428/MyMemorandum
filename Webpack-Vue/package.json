@@ -12,6 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "autodll-webpack-plugin": "^0.4.2",
+    "autoprefixer": "^9.1.5",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-polyfill": "^6.26.0",
@@ -20,6 +21,7 @@
     "css-loader": "^1.0.0",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "postcss-loader": "^3.0.0",
     "style-loader": "^0.23.1",
     "vue-loader": "^15.4.2",
     "vue-template-compiler": "^2.5.17",

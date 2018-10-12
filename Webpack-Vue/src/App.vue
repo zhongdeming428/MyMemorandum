@@ -1,12 +1,16 @@
 <template>
   <div id="app">
-    <h1>test1</h1>
+    <tab/>
   </div>
 </template>
 
 <script>
+import tab from './components/tab';
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    tab
+  }
 }
 </script>
 
