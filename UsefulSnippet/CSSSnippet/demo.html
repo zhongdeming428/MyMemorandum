@@ -6,6 +6,7 @@
         display: none !important;
       }
       html, body {
+        box-sizing: border-box;
         padding: 0;
         margin: 0;
         font-size: 16px;
@@ -120,22 +121,24 @@
 
       .hover-underline-animation {
         cursor: pointer;
-        overflow: hidden;
+        position: relative;
       }
       .hover-underline-animation::after {
         content: '';
-        width: 100%;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 0%;
         height: 2px;
         display: block;
         background-color: #7983ff;
-        transform: translateX(100%);
-        transition: transform 0.3s;
+        transition: all 0.3s;
       }
       .hover-underline-animation:hover::after {
-        transform: translateX(0)
+        width: 100%;
       }
       .hover-underline-animation:hover ~ .hover-underline-animation::after {
-        transform: translateX(-100%) !important;
+        right: 100% !important;
       }
 
       .not-selector > li {
@@ -151,10 +154,6 @@
         position: absolute;
         bottom: 0;
         left: 0;
-      }
-      .not-selector > li:hover {
-        background-color: #7983ff;
-        color: white;
       }
 
       .overflow-scroll-gradient {
@@ -184,6 +183,22 @@
         width: 15rem;
         height: 25rem;
         overflow-y: scroll;
+      }
+
+      .popmenu {
+        width: 20rem;
+        height: 15rem;
+        position: relative;
+        background-color: #7983ff;
+        color: white;
+        overflow: visible;
+      }
+      .popmenu > div {
+        position: absolute;
+        top: -3rem;
+        height: 3rem;
+        color: #7983ff;
+        background-color: red;
       }
     </style>
   </head>
@@ -256,13 +271,13 @@
     <p class="gradient-text dn">
       gradient-text
     </p>
-    <span class="hover-underline-animation">
+    <span class="dn hover-underline-animation">
       Hover Underline Animation
     </span>
-    <span class="hover-underline-animation">
+    <span class="dn hover-underline-animation">
       Hover Underline Animation
     </span>
-    <span class="hover-underline-animation">
+    <span class="dn hover-underline-animation">
       Hover Underline Animation
     </span>
 
@@ -290,6 +305,11 @@
         egestas augue, eu vulputate magna eros eu erat. Aliquam 
         erat volutpat. Nam dui mi, tincidunt quis, accumsan 
         porttitor, facilisis luctus, metus
+      </div>
+    </div>
+    <div class="popmenu">
+      <div>
+        popnemu title
       </div>
     </div>
   </body>
