@@ -5,6 +5,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = merge(baseConfig, {
   mode: 'production',
+  devtool: 'source-map',
   plugins: [
     new CleanWebpackPlugin(['dist/'], {
       root: path.resolve(__dirname, '../'),
