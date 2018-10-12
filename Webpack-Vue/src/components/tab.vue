@@ -27,11 +27,6 @@
     left: 100%;
     bottom: 0;
   }
-  @media (min-resolution: 2dppx) {
-    .tab {
-      background-color: aliceblue
-    }
-  }
 </style>
 
 <template>
