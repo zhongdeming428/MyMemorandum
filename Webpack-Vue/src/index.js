@@ -1,3 +1,13 @@
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import App from './App';
+
 import './css/index.css'
 
-console.log('index.js');
+new Vue({
+  el: '#app',
+  components: {
+    App
+  },
+  template: '<App/>'
+});
