@@ -14,8 +14,7 @@ export default {
 }
 </script>
 
-<style scoped>
-  div > h1 {
-    color: antiquewhite
-  }
+<style scoped lang="stylus">
+  div > h1
+    color antiquewhite
 </style>
