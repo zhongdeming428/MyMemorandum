@@ -330,7 +330,7 @@ Linux 下创建的命令：
       use: ['vue-style-loader', 'css-loader']
     }
 
-只有这一处配置是不行的，根据 [vue-loader 官网]()的说明，我们还需要配置一个插件，然后还需要配置 `resolve.alias` 别名，不然 Webpack 没法找到 Vue 模块。
+只有这一处配置是不行的，根据 [vue-loader 官网](https://vue-loader.vuejs.org/zh/guide/)的说明，我们还需要配置一个插件，然后还需要配置 `resolve.alias` 别名，不然 Webpack 没法找到 Vue 模块。
 
 配置插件，首先在文件头部引入：
 
@@ -547,5 +547,7 @@ Webpack 4 开启热更新相对容易，具体步骤如下：
 * 多查 Webpack 文档，其实很多问题里面都交代清楚了，不要急于到网上找答案。
 * 现成的脚手架是最好的范例，比如 Vue-Cli，create-react-app。多看看它们是怎么配置的，可以学到一些东西。
 
+
+示例代码放在我的 [GitHub 仓库](https://github.com/zhongdeming428/MyMemorandum/tree/master/Webpack-Vue)，需要的同学可以自取。
 
 如有错误，敬请指出！
