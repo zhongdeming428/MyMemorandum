@@ -426,3 +426,104 @@ CSS 代码如下：
 效果截图如下：
 
 ![img](./gif/overflow-scroll-gradient.gif)
+
+## 十、使用系统字体获得原生体验
+
+HTML 代码：
+
+    <p class="system-font-stack">This text uses the system font.</p>
+  
+CSS 代码如下：
+
+    .system-font-stack {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+我在 Ubuntu 系统下显示效果如下：
+
+![img](./gif/system-font.png)
+
+## 十一、圆润的 checkbox
+
+HTML 代码如下：
+
+    <div>
+      <input type="checkbox" id="toggle" class="offscreen">
+      <label for="toggle" class="checkbox"></label>
+    </div>
+
+CSS 代码如下：
+
+    .offscreen {
+      display: none;
+    }
+    .checkbox {
+      width: 40px;
+      height: 20px;
+      border-radius: 20px;
+      display: inline-block;
+      background-color: rgba(0, 0, 0, 0.25);
+      position: relative;
+      cursor: pointer;
+    }
+    .checkbox::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      border-radius: 18px;
+      background-color: white;
+      position: absolute;
+      left: 1px;
+      top: 1px;
+      transition: transform .3s ease;
+    }
+    #toggle:checked + .checkbox {
+      background-color: #7983ff;
+    }
+    #toggle:checked + .checkbox::before {
+      transform: translateX(20px);
+    }
+
+效果截图如下：
+
+![img](./gif/checkbox-1.png)
+![img](./gif/checkbox-2.png)
+
+## 十二、绘制一个三角形
+
+HTML 代码如下：
+
+    <div class="triangle"></div>
+
+CSS 代码如下：
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border: 1rem solid transparent;
+      border-bottom: 3rem solid blue;
+    }
+
+利用 CSS border 的特性绘制三角形，改变 border 的宽度，可以绘制不同特性的三角形。
+
+## 十三、过长的文本用省略号代替
+
+HTML 代码如下：
+
+    <p class="truncate-text">
+      This text will be truncated with ellipse ......
+    </p>
+
+CSS 代码如下：
+
+    .truncate-text {
+      width: 19rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background-color: #c3c3c3
+    }
+
+效果截图如下;
+
+![img](./gif/truncate-text.png)

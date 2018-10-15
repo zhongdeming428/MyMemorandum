@@ -189,17 +189,24 @@
       .popmenu {
         width: 20rem;
         height: 15rem;
-        position: relative;
+        padding: 0;
         background-color: #7983ff;
         color: white;
         overflow: visible;
       }
       .popmenu > div {
-        position: absolute;
-        top: -3rem;
-        height: 3rem;
+        display: none;
+      }
+      .popmenu:hover > div,
+      .popmenu:focus > div,
+      .popmenu:focus-within > div {
+        height: 4rem;
+        width: 7rem;
+        transform: translateY(-100%);
         color: #7983ff;
         background-color: red;
+        margin: 0;
+        display: block;
       }
 
       .system-font-stack {
@@ -245,7 +252,7 @@
       }
 
       .truncate-text {
-        width: 19rem;
+        width: 15rem;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
