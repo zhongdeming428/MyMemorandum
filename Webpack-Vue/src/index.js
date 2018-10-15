@@ -11,3 +11,7 @@ new Vue({
   },
   template: '<App/>'
 });
+
+if (module.hot) {
+  module.hot.accept();
+}
