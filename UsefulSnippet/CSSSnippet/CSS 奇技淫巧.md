@@ -486,8 +486,7 @@ CSS 代码如下：
 
 效果截图如下：
 
-![img](./gif/checkbox-1.png)
-![img](./gif/checkbox-2.png)
+![img](./gif/checkbox.gif)
 
 ## 十二、绘制一个三角形
 
