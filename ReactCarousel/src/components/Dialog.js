@@ -4,10 +4,12 @@ class Dialog extends React.Component {
   constructor() {
     super();
     this.close = this.close.bind(this);
+    this.modalClick = this.modalClick.bind(this);
+    this.dialogClick = this.dialogClick.bind(this);
   }
   render() {
-    return <div className="modal" style={{ display: this.props.show ? '' : 'none' }}>
-      <div className="dialog">
+    return <div className="modal" onClick={this.modalClick} style={{ display: this.props.show ? '' : 'none'}}>
+      <div className="dialog" onClick={this.dialogClick}>
         <div className="dialog-title">{ this.props.title }<span className="dialog-close" onClick={this.close}>+</span></div>
         <div className="dialog-content">
           {
@@ -18,7 +20,15 @@ class Dialog extends React.Component {
     </div>
   }
   close() {
-    this.props.onClose();
+    this.props.close();
+  }
+  modalClick() {
+    if (this.props.clickModal2Hide) {
+      this.close();
+    }
+  }
+  dialogClick(e) {
+    e.stopPropagation();
   }
 }
 

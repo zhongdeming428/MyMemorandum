@@ -35,8 +35,6 @@ html, body {
   align-items: center;
 }
 .dialog {
-  min-height: 200px;
-  min-width: 400px;
   background-color: white;
   border-radius: 5px;
   overflow: hidden;
@@ -56,12 +54,11 @@ html, body {
   color: #c3c3c3;
   cursor: pointer;
   transform: rotate(45deg);
+  user-select: none;
 }
 .dialog-close:hover {
   color: red;
 }
 .dialog-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  min-width: 300px;
 }

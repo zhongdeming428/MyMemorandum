@@ -30,8 +30,8 @@ class App extends React.Component {
                 showBtn={options.showBtn}
                 height={options.height}
                 width={options.width}/>
-      <Dialog show={this.state.visible} title="Test" onClose={()=>{this.setState({visible: false})}}>
-        <div style={{backgroundColor:'',width: '500px',height: '300px'}}></div>
+      <Dialog show={this.state.visible} title="Test" clickModal2Hide={false} close={()=>{this.setState({visible: false})}}>
+        <img src="https://github.com/30-seconds/30-seconds-of-react/blob/master/logo.png?raw=true"></img>
       </Dialog>
     </div>
   }
