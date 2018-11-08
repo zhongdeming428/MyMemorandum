@@ -23,6 +23,7 @@ class App extends React.Component {
   }
   render() {
     return <div className="content">
+      <button onClick={()=>{Dialog.show({title: 'Test', content: <img src="https://github.com/zhongdeming428/30-seconds-of-react/raw/master/logo.png"/>})}}>T</button>
       <Carousel imgs={options.imgs}
                 urls={options.urls}
                 timeDuration={options.timeDuration}
@@ -30,9 +31,7 @@ class App extends React.Component {
                 showBtn={options.showBtn}
                 height={options.height}
                 width={options.width}/>
-      <Dialog show={this.state.visible} title="Test" clickModal2Hide={false} close={()=>{this.setState({visible: false})}}>
-        <img src="https://github.com/30-seconds/30-seconds-of-react/blob/master/logo.png?raw=true"></img>
-      </Dialog>
+      <Dialog clickModal2Hide={true} show={true}/>
     </div>
   }
 }
