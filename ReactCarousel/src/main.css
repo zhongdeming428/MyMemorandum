@@ -62,3 +62,17 @@ html, body {
 .dialog-content {
   min-width: 300px;
 }
+
+
+
+
+@keyframes bounceIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 50px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

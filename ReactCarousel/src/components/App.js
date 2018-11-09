@@ -1,6 +1,7 @@
 import React from 'react';
 import Carousel from './Carousel';
 import Dialog from './Dialog';
+import Message from './Message';
 
 const options = {
   width: '66%',
@@ -21,9 +22,12 @@ class App extends React.Component {
       visible: true
     };
   }
+  componentDidMount() {
+    
+  }
   render() {
     return <div className="content">
-      <button onClick={()=>{Dialog.show({title: 'Test', content: <img src="https://github.com/zhongdeming428/30-seconds-of-react/raw/master/logo.png"/>})}}>T</button>
+      {/* <button onClick={()=>{Dialog.show({title: 'Test', content: <img src="https://github.com/zhongdeming428/30-seconds-of-react/raw/master/logo.png"/>})}}>T</button>
       <Carousel imgs={options.imgs}
                 urls={options.urls}
                 timeDuration={options.timeDuration}
@@ -31,7 +35,12 @@ class App extends React.Component {
                 showBtn={options.showBtn}
                 height={options.height}
                 width={options.width}/>
-      <Dialog clickModal2Hide={true} show={true}/>
+      <Dialog clickModal2Hide={true} show={true}/> */}
+      <button onClick={() => {Message.warning('Hello World! This is a warning.......................................................')}}>Warning</button>
+      <button onClick={() => {Message.success('Hello World!')}}>Success</button>
+      <button onClick={() => {Message.info('Hello World!')}}>Info</button>
+      <button onClick={() => {Message.error('Hello World!')}}>Error</button>
+      <Message/>
     </div>
   }
 }
