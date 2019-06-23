@@ -1,0 +1,44 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'run', 'build' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 verbose run-script [ 'prebuild', 'build', 'postbuild' ]
+5 info lifecycle ReactCarousel@1.0.0~prebuild: ReactCarousel@1.0.0
+6 silly lifecycle ReactCarousel@1.0.0~prebuild: no script for prebuild, continuing
+7 info lifecycle ReactCarousel@1.0.0~build: ReactCarousel@1.0.0
+8 verbose lifecycle ReactCarousel@1.0.0~build: unsafe-perm in lifecycle true
+9 verbose lifecycle ReactCarousel@1.0.0~build: PATH: /usr/share/npm/bin/node-gyp-bin:/media/zhongdeming428/新加卷/我的资料/MyMemorandum/ReactCarousel/node_modules/.bin:/usr/lib/jdk1.8.0_191/bin:/usr/local/java//bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+10 verbose lifecycle ReactCarousel@1.0.0~build: CWD: /media/zhongdeming428/新加卷/我的资料/MyMemorandum/ReactCarousel
+11 silly lifecycle ReactCarousel@1.0.0~build: Args: [ '-c', 'webpack --config webpack.prod.conf.js' ]
+12 info lifecycle ReactCarousel@1.0.0~build: Failed to exec build script
+13 verbose stack Error: ReactCarousel@1.0.0 build: `webpack --config webpack.prod.conf.js`
+13 verbose stack spawn ENOENT
+13 verbose stack     at ChildProcess.<anonymous> (/usr/share/npm/lib/utils/spawn.js:17:16)
+13 verbose stack     at emitTwo (events.js:126:13)
+13 verbose stack     at ChildProcess.emit (events.js:214:7)
+13 verbose stack     at maybeClose (internal/child_process.js:925:16)
+13 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:209:5)
+14 verbose pkgid ReactCarousel@1.0.0
+15 verbose cwd /media/zhongdeming428/新加卷/我的资料/MyMemorandum/ReactCarousel
+16 error Linux 4.15.0-43-generic
+17 error argv "/usr/bin/node" "/usr/bin/npm" "run" "build"
+18 error node v8.10.0
+19 error npm  v3.5.2
+20 error file sh
+21 error code ELIFECYCLE
+22 error errno ENOENT
+23 error syscall spawn
+24 error ReactCarousel@1.0.0 build: `webpack --config webpack.prod.conf.js`
+24 error spawn ENOENT
+25 error Failed at the ReactCarousel@1.0.0 build script 'webpack --config webpack.prod.conf.js'.
+25 error Make sure you have the latest version of node.js and npm installed.
+25 error If you do, this is most likely a problem with the ReactCarousel package,
+25 error not with npm itself.
+25 error Tell the author that this fails on your system:
+25 error     webpack --config webpack.prod.conf.js
+25 error You can get information on how to open an issue for this project with:
+25 error     npm bugs ReactCarousel
+25 error Or if that isn't available, you can get their info via:
+25 error     npm owner ls ReactCarousel
+25 error There is likely additional logging output above.
+26 verbose exit [ 1, true ]
